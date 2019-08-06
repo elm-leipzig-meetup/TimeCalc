@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  </head>
+  <body>
+    <script src="TimeCalc.js"></script>
+    <div id="timeCalcDiv" style="margin-bottom:10px; position:relative;border:1px solid #BCBCBC;width:180px;text-align:center;font-family:arial,verdana;"></div>
+    <script>
+        var app = Elm.TimeCalc.init({node : document.getElementById('timeCalcDiv')});
+        app.ports.pushDataToStore.subscribe(function ([taskList, showTaskForm, initialise]) {
+            var TimeCalcObject = {taskList: taskList, showTaskForm: showTaskForm};
+            if(!initialise) {
+                window.localStorage.setItem('TimeCalc', JSON.stringify(TimeCalcObject));
+            }
+            TimeCalcObject = JSON.parse(window.localStorage.getItem('TimeCalc'));
+            if(TimeCalcObject != null) {
+                taskList = TimeCalcObject.taskList;
+                showTaskForm = TimeCalcObject.showTaskForm;
+            }
+          	var min=10000;
+    		var max=2147483647;
+            var random = Math.floor(Math.random() * (+max - +min)) + +min
+            app.ports.setDataFromStore.send([taskList, showTaskForm, random]);
+        });
+    </script>
+  </body>
+</html>
