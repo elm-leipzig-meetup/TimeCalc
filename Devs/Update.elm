@@ -34,7 +34,13 @@ update msg model =
                 Nothing -> ""
             newTaskList = List.append model.taskList [{ emptyTask | taskName = tempTaskName, uuid = (UUID.toString newUuid) }]
           in
-            ( {model | taskList = newTaskList, tempTaskName = Nothing, showTaskNameForm = False, currentSeed = Just newSeed} , Ports.pushDataToStore (newTaskList, False, False))
+            ( {model | taskList = newTaskList,
+                tempTaskName = Nothing,
+                showTaskNameForm = False,
+                currentSeed = Just newSeed
+              }
+              , Ports.pushDataToStore (newTaskList, False, False)
+            )
         AddTaskWithEnter key ->
           let
             ( newUuid, newSeed ) = Random.step UUID.generator (DU.getSeed model)
@@ -64,7 +70,14 @@ update msg model =
             newTimeList = List.append tForEdit.timeList [{ emptyBooking | from = Just now, uuid = (UUID.toString newUuid) }]
             newTaskList = ListE.updateIf (\item -> item.uuid == tUuid) (\item -> {item | timeList = newTimeList}) model.taskList
           in
-            ( {model | taskList = newTaskList, currentSeed = Just newSeed} , DU.focusSearchBox ("from_" ++ (UUID.toString newUuid)))
+            ( {model | taskList = newTaskList, currentSeed = Just newSeed}
+            ,
+              Cmd.batch [
+                DU.focusSearchBox ("from_" ++ (UUID.toString newUuid))
+                , Ports.pushDataToStore (newTaskList, model.showTaskNameForm, False)
+              ]
+            )
+
         RemoveBooking tUuid uuid ->
           let
             tForEdit = DU.getTaskForEdit model tUuid
