@@ -11,6 +11,7 @@ type alias Model = {
   , currentSeed : Maybe Random.Seed
   , taskList: List MyTask
   , tempTaskName: Maybe String
+  , tempTaskUuid: Maybe String
   , showTaskNameForm: Bool
   }
 
@@ -41,6 +42,7 @@ initialModel = {
   , currentSeed = Nothing
   , taskList = []
   , tempTaskName = Nothing
+  , tempTaskUuid = Nothing
   , showTaskNameForm = True
   }
 

@@ -23,8 +23,56 @@ update msg model =
         NoOpStr val -> ( model , Cmd.none)
         NoOpInt val -> ( model , Cmd.none)
         ReadDataFromPublish (taskList, showTaskNameForm, random) -> ( { model | showTaskNameForm = showTaskNameForm, taskList = taskList, random = random } , Cmd.none)
-        ToggleTasknameForm -> ( { model | showTaskNameForm = not model.showTaskNameForm } , Ports.pushDataToStore (model.taskList, not model.showTaskNameForm, False))
+        ToggleTasknameForm ->
+          let
+            cmds = if model.showTaskNameForm
+              then Ports.pushDataToStore (model.taskList, not model.showTaskNameForm, False)
+              else Cmd.batch [
+                  DU.focusSearchBox ("taskName")
+                  , Ports.pushDataToStore (model.taskList, not model.showTaskNameForm, False)
+                ]
+          in
+          ( { model | showTaskNameForm = not model.showTaskNameForm } , cmds)
         SetTempTaskname name -> ( { model | tempTaskName = Just name } , Cmd.none)
+        EditTaskname tUuid ->
+          let
+            tForEdit = DU.getTaskForEdit model tUuid
+          in
+            ( { model | tempTaskUuid = Just tUuid,
+              tempTaskName = Just tForEdit.taskName,
+              showTaskNameForm = True } , DU.focusSearchBox ("taskName"))
+        SetTask tUuid ->
+          let
+            tForEdit = DU.getTaskForEdit model tUuid
+            tempTaskName = case model.tempTaskName of
+                Just string -> string
+                Nothing -> ""
+            newTaskList = ListE.updateIf (\item -> item.uuid == tUuid) (\item -> {item | taskName = tempTaskName}) model.taskList
+          in
+            ( {model | taskList = newTaskList,
+                tempTaskName = Nothing
+                , tempTaskUuid = Nothing
+                , showTaskNameForm = False
+              }
+              , Ports.pushDataToStore (newTaskList, False, False)
+            )
+        SetTaskWithEnter tUuid key ->
+          let
+            tForEdit = DU.getTaskForEdit model tUuid
+            tempTaskName = case model.tempTaskName of
+                Just string -> string
+                Nothing -> ""
+            newTaskList = ListE.updateIf (\item -> item.uuid == tUuid) (\item -> {item | taskName = tempTaskName}) model.taskList
+          in
+            if key == 13
+              then ( {model | taskList = newTaskList,
+                  tempTaskName = Nothing
+                  , tempTaskUuid = Nothing
+                  , showTaskNameForm = False
+                }
+                , Ports.pushDataToStore (newTaskList, False, False)
+              )
+            else ( model, Cmd.none )
         AddTask ->
           let
             ( newUuid, newSeed ) = Random.step UUID.generator (DU.getSeed model)

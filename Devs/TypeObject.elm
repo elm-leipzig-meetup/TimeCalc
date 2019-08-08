@@ -13,6 +13,9 @@ type Msg =
   | ReadDataFromPublish (List MyTask, Bool, Int)
   | ToggleTasknameForm
   | SetTempTaskname String
+  | EditTaskname String
+  | SetTask String
+  | SetTaskWithEnter String Int
   | AddTask
   | AddTaskWithEnter Int
   | RemoveTask String

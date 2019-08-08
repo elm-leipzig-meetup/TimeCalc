@@ -54,14 +54,24 @@ getActionButton sign styles event =
 getTaskNameForm: Model -> Html Msg
 getTaskNameForm model =
   let
+    taskName = case model.tempTaskName of
+      Just name -> name
+      Nothing -> ""
+    taskUuid = case model.tempTaskUuid of
+      Just uuid -> uuid
+      Nothing -> ""
     button = case model.tempTaskName of
       Just n -> if not (String.isEmpty n)
-        then getActionButton "ok" [] (TO.AddTask)
+        then if String.isEmpty taskUuid
+          then getActionButton "ok" [] (TO.AddTask)
+          else getActionButton "ok" [] (TO.SetTask taskUuid)
         else getActionButton "schließen" [] (TO.ToggleTasknameForm)
       Nothing -> getActionButton "schließen" [] (TO.ToggleTasknameForm)
     returnEvent = case model.tempTaskName of
       Just n -> if not (String.isEmpty n)
-        then TO.AddTaskWithEnter
+        then if String.isEmpty taskUuid
+          then TO.AddTaskWithEnter
+          else (TO.SetTaskWithEnter taskUuid)
         else TO.NoOpInt
       Nothing -> TO.NoOpInt
   in
@@ -71,7 +81,9 @@ getTaskNameForm model =
     ][
       Html.div [][
         Html.input [
-          Attr.type_ "text"
+          Attr.id "taskName"
+          , Attr.type_ "text"
+          , Attr.value taskName
           , on "keydown" (Json.map returnEvent keyCode)
           , Ev.onInput TO.SetTempTaskname
           , Attr.placeholder "Taskname"
@@ -103,7 +115,12 @@ getTask t =
       , Attr.style "padding-top" "0px"
     ][
       Html.legend [][
-        Html.span [ Attr.style "padding-right" "5px" ][ Html.text t.taskName ]
+        Html.span [
+          Attr.style "padding-right" "5px"
+--          , Attr.style "cursor" "url(indexDateien/edit.png),auto"
+          , Attr.style "cursor" "pointer"
+          , Ev.onClick (EditTaskname t.uuid)
+        ][ Html.text t.taskName ]
         , getActionButton "-" [Attr.style "width" "20px", Attr.style "height" "20px"] (TO.RemoveTask t.uuid)
         , Html.span [ Attr.style "padding-right" "5px" ][ Html.text "" ]
         , roundBtn
