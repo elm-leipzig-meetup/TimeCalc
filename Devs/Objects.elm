@@ -2,6 +2,7 @@ module Devs.Objects exposing (..)
 
 import UUID exposing (UUID)
 import Random
+import Time exposing (Zone, utc)
 
 type TimeFormat = ForDisplay | ForInput
 
@@ -13,6 +14,7 @@ type alias Model = {
   , tempTaskName: Maybe String
   , tempTaskUuid: Maybe String
   , showTaskNameForm: Bool
+  , timeZone: Zone
   }
 
 type alias MyTask = {
@@ -44,6 +46,7 @@ initialModel = {
   , tempTaskName = Nothing
   , tempTaskUuid = Nothing
   , showTaskNameForm = True
+  , timeZone = Time.utc
   }
 
 getEmptyTask: MyTask

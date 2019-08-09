@@ -11,22 +11,22 @@ type Msg =
   | NoOpStr String
   | NoOpInt Int
   | ReadDataFromPublish (List MyTask, Bool, Int)
+  | SetTimeZone Zone
   | ToggleTasknameForm
   | SetTempTaskname String
   | EditTaskname String
   | SetTask String
   | SetTaskWithEnter String Int
   | AddTask
+  | AddTask_Int Posix
   | AddTaskWithEnter Int
   | RemoveTask String
   | SetTimeAndAddBooking String
-  | SetTimezoneAndAddBooking String Posix
-  | AddBooking String Posix Zone
+  | AddBooking String Posix
   | RemoveBooking String String
   | SetFrom String String String
   | SetTo String String String
   | PreSetTo String String
-  | PreSetTo_Int1 String String Posix
-  | PreSetTo_Int2 String String Posix Zone
+  | PreSetTo_Int String String Posix
   | RoundUp String
   | DeRound String

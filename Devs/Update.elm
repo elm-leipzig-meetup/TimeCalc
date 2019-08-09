@@ -23,6 +23,7 @@ update msg model =
         NoOpStr val -> ( model , Cmd.none)
         NoOpInt val -> ( model , Cmd.none)
         ReadDataFromPublish (taskList, showTaskNameForm, random) -> ( { model | showTaskNameForm = showTaskNameForm, taskList = taskList, random = random } , Cmd.none)
+        SetTimeZone zone -> ( { model | timeZone = zone } , Cmd.none)
         ToggleTasknameForm ->
           let
             cmds = if model.showTaskNameForm
@@ -73,48 +74,48 @@ update msg model =
                 , Ports.pushDataToStore (newTaskList, False, False)
               )
             else ( model, Cmd.none )
-        AddTask ->
+        AddTask -> (model, Task.perform AddTask_Int Time.now)
+        AddTask_Int time ->
           let
-            ( newUuid, newSeed ) = Random.step UUID.generator (DU.getSeed model)
+            ( newUuidT, newSeedT ) = Random.step UUID.generator (DU.getSeed model)
+            ( newUuidB, newSeedB ) = Random.step UUID.generator newSeedT
             emptyTask = O.getEmptyTask
+            emptyBooking = O.getEmptyBooking
+            now = DU.getMyTimeFromPosix time model.timeZone
             tempTaskName = case model.tempTaskName of
                 Just string -> string
                 Nothing -> ""
-            newTaskList = List.append model.taskList [{ emptyTask | taskName = tempTaskName, uuid = (UUID.toString newUuid) }]
+            newTimeList = [{ emptyBooking | from = Just now, uuid = (UUID.toString newUuidB) }]
+            newTask = { emptyTask | taskName = tempTaskName, timeList = newTimeList, uuid = (UUID.toString newUuidT) }
+            newTaskList = List.append model.taskList [newTask]
           in
             ( {model | taskList = newTaskList,
                 tempTaskName = Nothing,
                 showTaskNameForm = False,
-                currentSeed = Just newSeed
+                currentSeed = Just newSeedB
               }
-              , Ports.pushDataToStore (newTaskList, False, False)
+              , Cmd.batch [
+                  DU.focusSearchBox ("from_" ++ (UUID.toString newUuidB))
+                  , Ports.pushDataToStore (newTaskList, False, False)
+                ]
             )
         AddTaskWithEnter key ->
-          let
-            ( newUuid, newSeed ) = Random.step UUID.generator (DU.getSeed model)
-            emptyTask = O.getEmptyTask
-            tempTaskName = case model.tempTaskName of
-                Just string -> string
-                Nothing -> ""
-            newTaskList = List.append model.taskList [{ emptyTask | taskName = tempTaskName, uuid = (UUID.toString newUuid) }]
-          in
-            if key == 13
-              then ( {model | taskList = newTaskList, tempTaskName = Nothing, showTaskNameForm = False, currentSeed = Just newSeed} , Ports.pushDataToStore (newTaskList, False, False))
-              else ( model , Cmd.none)
+          if key == 13
+            then (model, Task.perform AddTask_Int Time.now)
+            else ( model , Cmd.none)
         RemoveTask tUuid ->
           let
             newTaskList = List.filter (\item -> (item.uuid /= tUuid)) model.taskList
             showTaskNameForm = if List.length newTaskList == 0 then True else False
           in
             ( {model | taskList = newTaskList, showTaskNameForm = showTaskNameForm} , Ports.pushDataToStore (newTaskList, showTaskNameForm, False))
-        SetTimeAndAddBooking tUuid -> (model, Task.perform (SetTimezoneAndAddBooking tUuid) Time.now)
-        SetTimezoneAndAddBooking tUuid time -> (model, Task.perform (AddBooking tUuid time) Time.here)
-        AddBooking tUuid time zone ->
+        SetTimeAndAddBooking tUuid -> (model, Task.perform (AddBooking tUuid) Time.now)
+        AddBooking tUuid time ->
           let
             ( newUuid, newSeed ) = Random.step UUID.generator (DU.getSeed model)
             tForEdit = DU.getTaskForEdit model tUuid
             emptyBooking = O.getEmptyBooking
-            now = DU.getMyTimeFromPosix time zone
+            now = DU.getMyTimeFromPosix time model.timeZone
             newTimeList = List.append tForEdit.timeList [{ emptyBooking | from = Just now, uuid = (UUID.toString newUuid) }]
             newTaskList = ListE.updateIf (\item -> item.uuid == tUuid) (\item -> {item | timeList = newTimeList}) model.taskList
           in
@@ -147,12 +148,11 @@ update msg model =
             newTaskList = ListE.updateIf (\item -> item.uuid == tUuid) (\item -> {item | timeList = newTimeList, calcedTime = DU.calculateTime newTimeList tForEdit.rounded }) model.taskList
           in
             ( { model | taskList = newTaskList } , Ports.pushDataToStore (newTaskList, model.showTaskNameForm, False) )
-        PreSetTo tUuid bUuid -> (model, Task.perform (PreSetTo_Int1 tUuid bUuid) Time.now)
-        PreSetTo_Int1 tUuid bUuid time -> (model, Task.perform (PreSetTo_Int2 tUuid bUuid time) Time.here)
-        PreSetTo_Int2 tUuid bUuid time zone ->
+        PreSetTo tUuid bUuid -> (model, Task.perform (PreSetTo_Int tUuid bUuid) Time.now)
+        PreSetTo_Int tUuid bUuid time ->
           let
             tForEdit = DU.getTaskForEdit model tUuid
-            now = DU.getMyTimeFromPosix time zone
+            now = DU.getMyTimeFromPosix time model.timeZone
             newTimeList = ListE.updateIf (\item -> item.uuid == bUuid) (\item -> {item | to = Just now}) tForEdit.timeList
             newTaskList = ListE.updateIf (\item -> item.uuid == tUuid) (\item -> {item | timeList = newTimeList, calcedTime = DU.calculateTime newTimeList tForEdit.rounded }) model.taskList
           in

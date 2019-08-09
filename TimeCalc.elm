@@ -7,6 +7,8 @@ import Devs.Ports as Ports exposing (setDataFromStore)
 import Browser exposing (..)
 import Html exposing (..)
 import Html.Attributes as Attr exposing (..)
+import Time
+import Task
 
 import Devs.Objects as O exposing (..)
 import Devs.TypeObject as TO exposing (..)
@@ -47,5 +49,10 @@ subscriptions : Model -> Sub Msg
 subscriptions model = Ports.setDataFromStore ReadDataFromPublish
 
 init : ( Model, Cmd Msg )
-init =  ( initialModel, Ports.pushDataToStore (initialModel.taskList, initialModel.showTaskNameForm, True) )
+init =  ( initialModel,
+    Cmd.batch [
+      Ports.pushDataToStore (initialModel.taskList, initialModel.showTaskNameForm, True)
+      , Task.perform SetTimeZone Time.here
+    ]
+  )
 --init =  ( initialModel, Cmd.none )
