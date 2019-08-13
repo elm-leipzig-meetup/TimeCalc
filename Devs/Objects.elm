@@ -23,6 +23,7 @@ type alias MyTask = {
   , taskName: String
   , uuid: String
   , rounded: Bool
+  , saved: Bool
   }
 
 type alias Booking = {
@@ -56,6 +57,7 @@ getEmptyTask = {
   , timeList = []
   , uuid = UUID.toString UUID.nil
   , rounded = False
+  , saved = False
   }
 
 getEmptyTime: MyTime

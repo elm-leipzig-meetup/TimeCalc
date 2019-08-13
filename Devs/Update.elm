@@ -109,6 +109,11 @@ update msg model =
             showTaskNameForm = if List.length newTaskList == 0 then True else False
           in
             ( {model | taskList = newTaskList, showTaskNameForm = showTaskNameForm} , Ports.pushDataToStore (newTaskList, showTaskNameForm, False))
+        ToggleSaveTask tUuid ->
+          let
+            newTaskList = ListE.updateIf (\item -> item.uuid == tUuid) (\item -> {item | saved = not(item.saved) }) model.taskList
+          in
+            ( { model | taskList = newTaskList } , Ports.pushDataToStore (newTaskList, model.showTaskNameForm, False) )
         SetTimeAndAddBooking tUuid -> (model, Task.perform (AddBooking tUuid) Time.now)
         AddBooking tUuid time ->
           let

@@ -20,7 +20,7 @@
                 showTaskForm = TimeCalcObject.showTaskForm;
             }
           	var min=10000;
-    		var max=2147483647;
+    		    var max=2147483647;
             var random = Math.floor(Math.random() * (+max - +min)) + +min
             app.ports.setDataFromStore.send([taskList, showTaskForm, random]);
         });

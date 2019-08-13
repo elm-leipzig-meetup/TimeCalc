@@ -10,9 +10,11 @@ import Devs.Objects as O exposing (..)
 import Devs.TypeObject as TO exposing (..)
 import Devs.Utils as DU exposing (getFormatedTime, getHoursOfTime)
 
-getBookingRow: Bool -> String -> Booking -> Html Msg
-getBookingRow useRounded tUuid booking =
+getBookingRow: MyTask -> Booking -> Html Msg
+getBookingRow t booking =
   let
+    useRounded = t.rounded
+    tUuid = t.uuid
     from = case booking.from of
         Just time -> DU.getFormatedTime time ForInput
         Nothing -> DU.getFormatedTime O.getEmptyTime ForInput
@@ -25,26 +27,28 @@ getBookingRow useRounded tUuid booking =
         case booking.to of
           Just time -> DU.getFormatedTime time ForInput
           Nothing -> DU.getFormatedTime O.getEmptyTime ForInput
-  in
-    Html.tr [][
-      Html.td [][
-        Html.input [
+    fromField = if t.saved
+      then Html.text from
+      else Html.input [
           Ev.onInput (TO.SetFrom tUuid booking.uuid)
           , Attr.type_ "time"
           , Attr.value from
           , Attr.id ("from_" ++ booking.uuid)
         ][]
-      ]
-      , Html.td [][
-        Html.input [
+    toField = if t.saved
+      then Html.text to
+      else Html.input [
           Ev.onInput (TO.SetTo tUuid booking.uuid)
           , Ev.onFocus (TO.PreSetTo tUuid booking.uuid)
           , Attr.type_ "time"
           , Attr.value to
-          , Attr.id "to"
+          , Attr.id ("to_" ++ booking.uuid)
         ][]
-      ]
-      , Html.td [][ getActionButton "-" [Attr.style "width" "20px", Attr.style "height" "20px"] (TO.RemoveBooking tUuid booking.uuid) ]
+  in
+    Html.tr [][
+      Html.td [][ fromField ]
+      , Html.td [][ toField ]
+      , Html.td [][ showActionButtonInTask t (getActionButton "-" [Attr.style "width" "20px", Attr.style "height" "20px"] (TO.RemoveBooking tUuid booking.uuid)) ]
     ]
 
 getActionButton: String -> List (Html.Attribute Msg) -> Msg -> Html Msg
@@ -108,30 +112,35 @@ getTask t =
         True -> getActionButton "x" [Attr.style "width" "20px", Attr.style "height" "20px"] (TO.DeRound t.uuid)
         False -> getActionButton "r" [Attr.style "width" "20px", Attr.style "height" "20px"] (TO.RoundUp t.uuid)
       else Html.text ""
+    saveBtn = if t.saved
+      then getActionButton "d" [Attr.style "width" "20px", Attr.style "height" "20px"] (TO.ToggleSaveTask t.uuid)
+      else getActionButton "s" [Attr.style "width" "20px", Attr.style "height" "20px"] (TO.ToggleSaveTask t.uuid)
     header = if calcedH > 0 then (calcedTime ++ " = " ++ calcedHours) else ""
+    taskNameAttr = if t.saved
+      then [ Attr.style "padding-right" "5px" ]
+      else [ Attr.style "padding-right" "5px", Attr.style "cursor" "pointer", Ev.onClick (EditTaskname t.uuid) ]
   in
     Html.fieldset [
       Attr.style "padding-right" "0px"
       , Attr.style "padding-top" "0px"
     ][
       Html.legend [][
-        Html.span [
-          Attr.style "padding-right" "5px"
---          , Attr.style "cursor" "url(indexDateien/edit.png),auto"
-          , Attr.style "cursor" "pointer"
-          , Ev.onClick (EditTaskname t.uuid)
-        ][ Html.text t.taskName ]
-        , getActionButton "-" [Attr.style "width" "20px", Attr.style "height" "20px"] (TO.RemoveTask t.uuid)
-        , Html.span [ Attr.style "padding-right" "5px" ][ Html.text "" ]
-        , roundBtn
+        Html.span taskNameAttr [ Html.text t.taskName ]
+        , showActionButtonInTask t (getActionButton "-" [Attr.style "width" "20px", Attr.style "height" "20px"] (TO.RemoveTask t.uuid))
+--        , Html.span [ Attr.style "padding-right" "5px" ][ Html.text "" ]
+        , showActionButtonInTask t roundBtn
+        , saveBtn
       ]
       , Html.table [ Attr.style "width" "100%" ][
         Html.thead [][
           Html.tr [][
             Html.td [ Attr.colspan 2, Attr.style "text-align" "center", Attr.style "width" "100%" ][ Html.text header ]
-            , Html.td [][ getActionButton "+" [Attr.style "width" "20px", Attr.style "height" "20px"] (TO.SetTimeAndAddBooking t.uuid) ]
+            , Html.td [][ showActionButtonInTask t (getActionButton "+" [Attr.style "width" "20px", Attr.style "height" "20px"] (TO.SetTimeAndAddBooking t.uuid)) ]
           ]
         ]
-        , Html.tbody [] (List.map (getBookingRow t.rounded t.uuid) t.timeList)
+        , Html.tbody [] (List.map (getBookingRow t) t.timeList)
       ]
     ]
+
+showActionButtonInTask: MyTask -> Html Msg -> Html Msg
+showActionButtonInTask t btn = if not t.saved then btn else Html.text ""
