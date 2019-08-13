@@ -28,7 +28,7 @@ getBookingRow t booking =
           Just time -> DU.getFormatedTime time ForInput
           Nothing -> DU.getFormatedTime O.getEmptyTime ForInput
     fromField = if t.saved
-      then Html.text from
+      then Html.text (from ++ " -")
       else Html.input [
           Ev.onInput (TO.SetFrom tUuid booking.uuid)
           , Attr.type_ "time"
@@ -46,7 +46,7 @@ getBookingRow t booking =
         ][]
   in
     Html.tr [][
-      Html.td [][ fromField ]
+      Html.td [ Attr.style "text-align" "right" ][ fromField ]
       , Html.td [][ toField ]
       , Html.td [][ showActionButtonInTask t (getActionButton "-" [Attr.style "width" "20px", Attr.style "height" "20px"] (TO.RemoveBooking tUuid booking.uuid)) ]
     ]

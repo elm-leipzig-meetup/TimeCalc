@@ -15,6 +15,7 @@ type alias Model = {
   , tempTaskUuid: Maybe String
   , showTaskNameForm: Bool
   , timeZone: Zone
+  , taskUuidForDel: Maybe String
   }
 
 type alias MyTask = {
@@ -48,6 +49,7 @@ initialModel = {
   , tempTaskUuid = Nothing
   , showTaskNameForm = True
   , timeZone = Time.utc
+  , taskUuidForDel = Nothing
   }
 
 getEmptyTask: MyTask

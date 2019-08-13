@@ -20,7 +20,9 @@ type Msg =
   | AddTask
   | AddTask_Int Posix
   | AddTaskWithEnter Int
+  | CancelRemoveTask
   | RemoveTask String
+  | RemoveTaskConfirmed
   | ToggleSaveTask String
   | SetTimeAndAddBooking String
   | AddBooking String Posix

@@ -13,6 +13,7 @@ import Task
 import Devs.Objects as O exposing (..)
 import Devs.TypeObject as TO exposing (..)
 import Devs.Update as U exposing (..)
+import Devs.Utils as DU exposing (getTaskForEdit)
 import Devs.Templates as T exposing (getTaskNameForm,getActionButton,getTask)
 
 import Debug exposing (log)
@@ -23,13 +24,23 @@ import Debug exposing (log)
 view : Model -> Html Msg
 view model =
   let
-    taskDiv = if model.showTaskNameForm
-      then getTaskNameForm model
-      else Html.div [] (
-        List.append
-          [ Html.div [ Attr.style "text-align" "right" ][ getActionButton "neuer Task" [] (TO.ToggleTasknameForm) ] ]
-          (List.map getTask model.taskList)
-        )
+    taskDiv = case model.taskUuidForDel of
+        Just tUuid ->
+          let
+            tForEdit = DU.getTaskForEdit model tUuid
+          in
+            Html.div [][
+              Html.text (tForEdit.taskName ++ " löschen?")
+              , getActionButton "ja" [] (TO.RemoveTaskConfirmed)
+              , getActionButton "nein" [] (TO.CancelRemoveTask)
+              ]
+        Nothing -> if model.showTaskNameForm
+          then getTaskNameForm model
+          else Html.div [] (
+            List.append
+              [ Html.div [ Attr.style "text-align" "right" ][ getActionButton "neuer Task" [] (TO.ToggleTasknameForm) ] ]
+              (List.map getTask model.taskList)
+            )
   in
     Html.div [
       Attr.style "margin-bottom" "10px"

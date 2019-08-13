@@ -103,12 +103,17 @@ update msg model =
           if key == 13
             then (model, Task.perform AddTask_Int Time.now)
             else ( model , Cmd.none)
-        RemoveTask tUuid ->
+        RemoveTask tUuid -> ( {model | taskUuidForDel = Just tUuid} , Cmd.none)
+        CancelRemoveTask -> ( {model | taskUuidForDel = Nothing} , Cmd.none)
+        RemoveTaskConfirmed ->
           let
+            tUuid = case model.taskUuidForDel of
+                Just uuid -> uuid
+                Nothing -> UUID.toString UUID.nil
             newTaskList = List.filter (\item -> (item.uuid /= tUuid)) model.taskList
             showTaskNameForm = if List.length newTaskList == 0 then True else False
           in
-            ( {model | taskList = newTaskList, showTaskNameForm = showTaskNameForm} , Ports.pushDataToStore (newTaskList, showTaskNameForm, False))
+            ( {model | taskUuidForDel = Nothing, taskList = newTaskList, showTaskNameForm = showTaskNameForm} , Ports.pushDataToStore (newTaskList, showTaskNameForm, False))
         ToggleSaveTask tUuid ->
           let
             newTaskList = ListE.updateIf (\item -> item.uuid == tUuid) (\item -> {item | saved = not(item.saved) }) model.taskList
