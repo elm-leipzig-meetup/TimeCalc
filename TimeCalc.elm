@@ -31,17 +31,17 @@ view model =
           in
             Html.div [][
               Html.text (tForEdit.taskName ++ " löschen?")
-              , T.getActionButton "ja" [] (TO.RemoveTaskConfirmed)
-              , T.getActionButton "nein" [] (TO.CancelRemoveTask)
+              , T.getActionButton "tick" "löschen" [] (TO.RemoveTaskConfirmed)
+              , T.getActionButton "panel_close" "abbrechen" [] (TO.CancelRemoveTask)
               ]
         Nothing -> if model.showTaskNameForm then T.getTaskNameForm model
           else if model.showConfigApiForm then T.getConfigForm model
           else Html.div [] (
             List.append
               [ Html.div [ Attr.style "text-align" "right" ][
-                T.getActionButton "config" [] (TO.ToggleConfigApiForm)
+                T.getActionButton "cog" "Konfigurieren" [] (TO.ToggleConfigApiForm)
                 , Html.span [ Attr.style "padding-right" "60px" ][ Html.text "" ]
-                , T.getActionButton "neuer Task" [] (TO.ToggleTasknameForm)
+                , T.getActionButton "plus_rect" "neuer Task" [] (TO.ToggleTasknameForm)
               ] ]
               (List.map T.getTask model.taskList)
             )
