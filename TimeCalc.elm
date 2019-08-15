@@ -32,6 +32,7 @@ view model =
             Html.div [][
               Html.text (tForEdit.taskName ++ " löschen?")
               , T.getActionButton "tick" "löschen" [] (TO.RemoveTaskConfirmed)
+              , Html.span [ Attr.style "padding-right" "5px" ][ Html.text "" ]
               , T.getActionButton "panel_close" "abbrechen" [] (TO.CancelRemoveTask)
               ]
         Nothing -> if model.showTaskNameForm then T.getTaskNameForm model

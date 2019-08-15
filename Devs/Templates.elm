@@ -48,18 +48,25 @@ getBookingRow t booking =
     Html.tr [][
       Html.td [ Attr.style "text-align" "right" ][ fromField ]
       , Html.td [][ toField ]
-      , Html.td [][ showActionButtonInTask t (getActionButton "minus_rect" "löschen" [Attr.style "width" "20px", Attr.style "height" "20px"] (TO.RemoveBooking tUuid booking.uuid)) ]
+      , Html.td [][ showActionButtonInTask t (getActionButton "minus_rect" "löschen" [Attr.style "width" "20px"] (TO.RemoveBooking tUuid booking.uuid)) ]
     ]
 
 getActionButton: String -> String -> List (Html.Attribute Msg) -> Msg -> Html Msg
 getActionButton sign title styles event =
 --  Html.input (List.append [ Ev.onClick event, Attr.type_ "button", Attr.value sign, Attr.style "cursor" "pointer" ] styles) []
-  Html.button (List.append [ Ev.onClick event, Attr.style "cursor" "pointer", Attr.title title ] styles) [
+  Html.button (List.append [
+      Ev.onClick event
+      , Attr.style "cursor" "pointer"
+      , Attr.style "width" "20px"
+      , Attr.style "padding" "1px"
+      , Attr.style "height" "20px"
+      , Attr.title title
+    ] styles) [
     Html.img [
       Attr.src ("img/" ++ sign ++ ".svg")
       , Attr.style "height" "15px"
-      , Attr.style "margin-left" "-7px"
-      , Attr.style "margin-top" "-1px"
+--      , Attr.style "margin-left" "-7px"
+--      , Attr.style "margin-top" "-1px"
     ][]
   ]
 
@@ -127,12 +134,12 @@ getTask t =
     calcedHours = (String.fromFloat calcedH) ++ " h"
     roundBtn = if calcedH > 0
       then case t.rounded of
-        True -> getActionButton "arrow_rotate_back" "entrunden" [Attr.style "width" "20px", Attr.style "height" "20px"] (TO.DeRound t.uuid)
-        False -> getActionButton "arrow_rotate_clockwise" "runden" [Attr.style "width" "20px", Attr.style "height" "20px"] (TO.RoundUp t.uuid)
+        True -> getActionButton "arrow_rotate_back" "entrunden" [Attr.style "width" "20px"] (TO.DeRound t.uuid)
+        False -> getActionButton "arrow_rotate_clockwise" "runden" [Attr.style "width" "20px"] (TO.RoundUp t.uuid)
       else Html.text ""
     saveBtn = if t.saved
-      then getActionButton "editable" "freigeben" [Attr.style "width" "20px", Attr.style "height" "20px"] (TO.ToggleSaveTask t.uuid)
-      else getActionButton "editable_not" "sichern" [Attr.style "width" "20px", Attr.style "height" "20px"] (TO.ToggleSaveTask t.uuid)
+      then getActionButton "editable" "freigeben" [Attr.style "width" "20px"] (TO.ToggleSaveTask t.uuid)
+      else getActionButton "editable_not" "sichern" [Attr.style "width" "20px"] (TO.ToggleSaveTask t.uuid)
     header = if calcedH > 0 then (calcedTime ++ " = " ++ calcedHours) else ""
     taskNameAttr = if t.saved
       then [ Attr.style "padding-right" "5px" ]
@@ -144,16 +151,17 @@ getTask t =
     ][
       Html.legend [][
         Html.span taskNameAttr [ Html.text t.taskName ]
-        , showActionButtonInTask t (getActionButton "delete" "löschen" [Attr.style "width" "20px", Attr.style "height" "20px"] (TO.RemoveTask t.uuid))
---        , Html.span [ Attr.style "padding-right" "5px" ][ Html.text "" ]
+        , showActionButtonInTask t (getActionButton "delete" "löschen" [Attr.style "width" "20px"] (TO.RemoveTask t.uuid))
+        , Html.span [ Attr.style "padding-right" "5px" ][ Html.text "" ]
         , showActionButtonInTask t roundBtn
+        , Html.span [ Attr.style "padding-right" "5px" ][ Html.text "" ]
         , saveBtn
       ]
       , Html.table [ Attr.style "width" "100%" ][
         Html.thead [][
           Html.tr [][
             Html.td [ Attr.colspan 2, Attr.style "text-align" "center", Attr.style "width" "100%" ][ Html.text header ]
-            , Html.td [][ showActionButtonInTask t (getActionButton "plus_rect" "hinzufügen" [Attr.style "width" "20px", Attr.style "height" "20px"] (TO.SetTimeAndAddBooking t.uuid)) ]
+            , Html.td [][ showActionButtonInTask t (getActionButton "plus_rect" "hinzufügen" [Attr.style "width" "20px"] (TO.SetTimeAndAddBooking t.uuid)) ]
           ]
         ]
         , Html.tbody [] (List.map (getBookingRow t) t.timeList)
