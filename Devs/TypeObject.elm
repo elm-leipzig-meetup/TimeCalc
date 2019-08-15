@@ -10,7 +10,8 @@ type Msg =
   NoOp
   | NoOpStr String
   | NoOpInt Int
-  | ReadDataFromPublish (List MyTask, Bool, Int)
+  | ReadDataFromPublish TransferObj2
+  | ToggleConfigApiForm
   | SetTimeZone Zone
   | ToggleTasknameForm
   | SetTempTaskname String

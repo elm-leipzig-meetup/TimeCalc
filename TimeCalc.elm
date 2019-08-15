@@ -14,7 +14,7 @@ import Devs.Objects as O exposing (..)
 import Devs.TypeObject as TO exposing (..)
 import Devs.Update as U exposing (..)
 import Devs.Utils as DU exposing (getTaskForEdit)
-import Devs.Templates as T exposing (getTaskNameForm,getActionButton,getTask)
+import Devs.Templates as T exposing (getTaskNameForm,getActionButton,getTask, getConfigForm)
 
 import Debug exposing (log)
 
@@ -31,15 +31,19 @@ view model =
           in
             Html.div [][
               Html.text (tForEdit.taskName ++ " löschen?")
-              , getActionButton "ja" [] (TO.RemoveTaskConfirmed)
-              , getActionButton "nein" [] (TO.CancelRemoveTask)
+              , T.getActionButton "ja" [] (TO.RemoveTaskConfirmed)
+              , T.getActionButton "nein" [] (TO.CancelRemoveTask)
               ]
-        Nothing -> if model.showTaskNameForm
-          then getTaskNameForm model
+        Nothing -> if model.showTaskNameForm then T.getTaskNameForm model
+          else if model.showConfigApiForm then T.getConfigForm model
           else Html.div [] (
             List.append
-              [ Html.div [ Attr.style "text-align" "right" ][ getActionButton "neuer Task" [] (TO.ToggleTasknameForm) ] ]
-              (List.map getTask model.taskList)
+              [ Html.div [ Attr.style "text-align" "right" ][
+                T.getActionButton "config" [] (TO.ToggleConfigApiForm)
+                , Html.span [ Attr.style "padding-right" "60px" ][ Html.text "" ]
+                , T.getActionButton "neuer Task" [] (TO.ToggleTasknameForm)
+              ] ]
+              (List.map T.getTask model.taskList)
             )
   in
     Html.div [
@@ -62,7 +66,7 @@ subscriptions model = Ports.setDataFromStore ReadDataFromPublish
 init : ( Model, Cmd Msg )
 init =  ( initialModel,
     Cmd.batch [
-      Ports.pushDataToStore (initialModel.taskList, initialModel.showTaskNameForm, True)
+      Ports.pushDataToStore (O.getTransferObj initialModel.taskList initialModel.apiList initialModel.showTaskNameForm True)
       , Task.perform SetTimeZone Time.here
     ]
   )

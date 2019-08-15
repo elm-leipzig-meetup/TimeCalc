@@ -1,4 +1,4 @@
-module Devs.Templates exposing (getTaskNameForm,getActionButton,getTask)
+module Devs.Templates exposing (getTaskNameForm,getActionButton,getTask, getConfigForm)
 
 import Html exposing (..)
 import Html.Attributes as Attr exposing (..)
@@ -54,6 +54,16 @@ getBookingRow t booking =
 getActionButton: String -> List (Html.Attribute Msg) -> Msg -> Html Msg
 getActionButton sign styles event =
   Html.input (List.append [ Ev.onClick event, Attr.type_ "button", Attr.value sign, Attr.style "cursor" "pointer" ] styles) []
+
+getConfigForm: Model -> Html Msg
+getConfigForm model =
+    Html.div[
+      Attr.style "border" "black solid 0.5pt"
+      , Attr.style "padding" "5px"
+    ][
+      Html.div [][]
+      , Html.div [][ getActionButton "schließen" [] (TO.ToggleConfigApiForm) ]
+    ]
 
 getTaskNameForm: Model -> Html Msg
 getTaskNameForm model =
