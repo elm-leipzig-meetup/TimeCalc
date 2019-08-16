@@ -45,11 +45,17 @@ getBookingRow t booking =
           , Attr.value to
           , Attr.id ("to_" ++ booking.uuid)
         ][]
+    syncBtn = case t.api of
+      Just api -> showActionButtonInTask t (getActionButton "arrow_two_directions" "sync" [Attr.style "width" "20px"] (TO.SyncToExtern tUuid booking.uuid))
+      Nothing -> Html.text ""
   in
     Html.tr [][
       Html.td [ Attr.style "text-align" "right" ][ fromField ]
       , Html.td [][ toField ]
-      , Html.td [][ showActionButtonInTask t (getActionButton "minus_rect" "löschen" [Attr.style "width" "20px"] (TO.RemoveBooking tUuid booking.uuid)) ]
+      , Html.td [ Attr.style "white-space" "nowrap" ][
+        syncBtn
+        , showActionButtonInTask t (getActionButton "minus_rect" "löschen" [Attr.style "width" "20px"] (TO.RemoveBooking tUuid booking.uuid))
+      ]
     ]
 
 getActionButton: String -> String -> List (Html.Attribute Msg) -> Msg -> Html Msg

@@ -242,3 +242,4 @@ update msg model =
             newTaskList = ListE.updateIf (\item -> item.uuid == tUuid) (\item -> {item | timeList = newTimeList, rounded = False, calcedTime = DU.calculateTime newTimeList False }) model.taskList
           in
             ( { model | taskList = newTaskList } , Ports.pushDataToStore (O.getTransferObj newTaskList model.apiList model.showTaskNameForm False) )
+        SyncToExtern tUuid uuid -> ( model , Cmd.none)

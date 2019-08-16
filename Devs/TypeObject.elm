@@ -41,3 +41,4 @@ type Msg =
   | PreSetTo_Int String String Posix
   | RoundUp String
   | DeRound String
+  | SyncToExtern String String
