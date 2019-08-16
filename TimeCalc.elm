@@ -41,7 +41,7 @@ view model =
             List.append
               [ Html.div [ Attr.style "text-align" "right" ][
                 T.getActionButton "cog" "Konfigurieren" [] (TO.ToggleConfigApiForm)
-                , Html.span [ Attr.style "padding-right" "60px" ][ Html.text "" ]
+                , Html.span [ Attr.style "padding-right" "130px" ][ Html.text "" ]
                 , T.getActionButton "plus_rect" "neuer Task" [] (TO.ToggleTasknameForm)
               ] ]
               (List.map T.getTask model.taskList)

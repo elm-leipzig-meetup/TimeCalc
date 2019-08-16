@@ -1,4 +1,4 @@
-module Devs.Utils exposing (getSeed, toTime, calculateTime, getFormatedTime, getHoursOfTime, focusSearchBox, getTaskForEdit, roundUpTime, getMyTimeFromPosix)
+module Devs.Utils exposing (getSeed, toTime, calculateTime, getFormatedTime, getHoursOfTime, focusSearchBox, getTaskForEdit, roundUpTime, getMyTimeFromPosix, getApiType, getApiForEdit)
 
 import List exposing (..)
 import List.Extra as ListE
@@ -27,6 +27,15 @@ roundUpTime b =
       else (Basics.ceiling ((toFloat diff) / 15)) * 15
   in
     { b | rounded = Just (addTimes from (getTimeFromInt newDiff)) }
+
+getApiType: Model -> String -> ApiType
+getApiType model aUuid =
+  case List.head (List.filter (\item -> (item.uuid == aUuid)) model.apiTypeList) of
+    Just at -> at
+    Nothing -> O.getEmptyApiType
+
+getApiForEdit: Model -> String -> Maybe Api
+getApiForEdit model aUuid = List.head (List.filter (\item -> (item.uuid == aUuid)) model.apiList)
 
 getTaskForEdit: Model -> String -> MyTask
 getTaskForEdit model tUuid =

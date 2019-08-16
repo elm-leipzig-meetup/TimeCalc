@@ -12,9 +12,16 @@ type Msg =
   | NoOpInt Int
   | ReadDataFromPublish TransferObj2
   | ToggleConfigApiForm
+  | AddConfigApi
+  | RemoveApi String
+  | SetApiType String
+  | SetUrl String
+  | SetUser String
+  | SetPwd String
   | SetTimeZone Zone
   | ToggleTasknameForm
   | SetTempTaskname String
+  | SetTempApi String
   | EditTaskname String
   | SetTask String
   | SetTaskWithEnter String Int

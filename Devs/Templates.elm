@@ -2,7 +2,8 @@ module Devs.Templates exposing (getTaskNameForm,getActionButton,getTask, getConf
 
 import Html exposing (..)
 import Html.Attributes as Attr exposing (..)
-import Html.Events as Ev exposing (onClick, onInput, on, keyCode, onFocus)
+import Html.Events as Ev exposing (onClick, onInput, on, keyCode)
+import Html.Events.Extra as EvE exposing (onChange)
 import Json.Decode as Json
 import List exposing (..)
 
@@ -75,10 +76,44 @@ getConfigForm model =
     Html.div[
       Attr.style "border" "black solid 0.5pt"
       , Attr.style "padding" "5px"
+      , Attr.style "width" "290px"
     ][
-      Html.div [][]
-      , Html.div [][ getActionButton "panel_close" "schließen" [] (TO.ToggleConfigApiForm) ]
+      Html.div [][
+        Html.label [Attr.for "typ", Attr.style "width" "40px", Attr.style "display" "inline-block"][ Html.text "Typ" ]
+        , Html.select [
+          Attr.id "typ"
+          , Attr.style "width" "156px"
+          , EvE.onChange TO.SetApiType
+        ] (List.append [getEmptyOption] (List.map (\at -> Html.option[Attr.value at.uuid][Html.text at.name]) model.apiTypeList))
+        , Html.br[][]
+        , Html.label [Attr.for "url", Attr.style "width" "40px", Attr.style "display" "inline-block"][ Html.text "URL" ]
+        , Html.input [Attr.id "url", Attr.type_ "url", Ev.onInput TO.SetUrl][]
+        , Html.br[][]
+        , Html.label [Attr.for "user", Attr.style "width" "40px", Attr.style "display" "inline-block"][ Html.text "User" ]
+        , Html.input [Attr.id "user", Ev.onInput TO.SetUser][]
+        , Html.br[][]
+        , Html.label [Attr.for "pwd", Attr.style "width" "40px", Attr.style "display" "inline-block"][ Html.text "Pwd" ]
+        , Html.input [Attr.id "pwd", Attr.type_ "password", Ev.onInput TO.SetPwd][]
+        , Html.br[][]
+      ]
+      , Html.div [][
+        getActionButton "tick" "hinzufügen" [] (TO.AddConfigApi)
+        , getActionButton "panel_close" "schließen" [] (TO.ToggleConfigApiForm)
+      ], Html.div [][
+        Html.table[](List.map (\a -> Html.tr[][ Html.td[][ if showDelBtn model.taskList a.uuid then getActionButton "delete" "löschen" [] (TO.RemoveApi a.uuid) else Html.text "" ], Html.td[][ Html.text (a.apiUrl ++ " (" ++ a.user ++ ")") ] ]) model.apiList)
+      ]
     ]
+
+showDelBtn: List MyTask -> String -> Bool
+showDelBtn taskList aUuid =
+  case List.head (List.filter (\item -> (hasTaskThisApi item aUuid)) taskList) of
+    Just tl -> False
+    Nothing -> True
+hasTaskThisApi: MyTask -> String -> Bool
+hasTaskThisApi mt aUuid =
+  case mt.api of
+    Just api -> if api.uuid == aUuid then True else False
+    Nothing -> False
 
 getTaskNameForm: Model -> Html Msg
 getTaskNameForm model =
@@ -113,14 +148,33 @@ getTaskNameForm model =
           Attr.id "taskName"
           , Attr.type_ "text"
           , Attr.value taskName
-          , on "keydown" (Json.map returnEvent keyCode)
+          , Ev.on "keydown" (Json.map returnEvent Ev.keyCode)
           , Ev.onInput TO.SetTempTaskname
           , Attr.placeholder "Taskname"
           , Attr.maxlength 15
         ][]
+        , Html.select [
+          Attr.id "typ"
+          , Attr.style "width" "156px"
+          , EvE.onChange TO.SetTempApi
+        ] (List.append [getEmptyOption] (List.map (getApiOption model.tempTaskApi) model.apiList))
       ]
       , Html.div [][ button ]
     ]
+
+getEmptyOption: Html Msg
+getEmptyOption = Html.option[Attr.value ""][Html.text ""]
+
+getApiOption: Maybe Api -> Api -> Html Msg
+getApiOption sApi api =
+  let
+    selected = case sApi of
+      Just a -> if a.uuid == api.uuid
+        then True
+        else False
+      Nothing -> False
+  in
+    Html.option[Attr.value api.uuid, Attr.selected selected][Html.text api.apiType.name]
 
 getTask: MyTask -> Html Msg
 getTask t =

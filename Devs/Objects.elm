@@ -12,6 +12,7 @@ type alias Model = {
   , currentSeed : Maybe Random.Seed
   , taskList: List MyTask
   , tempTaskName: Maybe String
+  , tempTaskApi: Maybe Api
   , tempTaskUuid: Maybe String
   , showTaskNameForm: Bool
   , timeZone: Zone
@@ -19,6 +20,7 @@ type alias Model = {
   , showConfigApiForm: Bool
   , apiList: List Api
   , apiTypeList: List ApiType
+  , apiForAdd: Maybe Api
   }
 
 type alias TransferObj = {
@@ -62,6 +64,7 @@ type alias Api = {
   , apiUrl: String
   , user: String
   , password: String
+  , uuid: String
   }
 
 type alias ApiType = {
@@ -77,6 +80,7 @@ initialModel = {
   , currentSeed = Nothing
   , taskList = []
   , tempTaskName = Nothing
+  , tempTaskApi = Nothing
   , tempTaskUuid = Nothing
   , showTaskNameForm = True
   , timeZone = Time.utc
@@ -84,6 +88,16 @@ initialModel = {
   , showConfigApiForm = False
   , apiList = []
   , apiTypeList = getApiTypList
+  , apiForAdd = Nothing
+  }
+
+getEmptyApi: Api
+getEmptyApi = {
+  apiType=getEmptyApiType
+  , apiUrl=""
+  , user=""
+  , password=""
+  , uuid=UUID.toString UUID.nil
   }
 
 getTransferObj: List MyTask -> List Api -> Bool -> Bool -> TransferObj
@@ -94,6 +108,13 @@ getTransferObj taskList apiList showTaskNameForm initialise = {
     , apiList=apiList
   }
 
+getEmptyApiType: ApiType
+getEmptyApiType = {
+  id=-1
+  , name=""
+  , uuid=UUID.toString UUID.nil
+  }
+
 getApiTypList: List ApiType
 getApiTypList = [
     { id=0
@@ -101,7 +122,7 @@ getApiTypList = [
       , uuid="1c977be1-6f66-4e50-87c8-a506ff776847"
     }
     , { id=1
-      , name="CU LYSS"
+      , name="LYSS Jira"
       , uuid="5bd7162a-a9e4-4c4c-96c5-3c8a25e9b615"
     }
   ]
