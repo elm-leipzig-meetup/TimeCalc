@@ -16,6 +16,9 @@ getBookingRow t booking =
   let
     useRounded = t.rounded
     tUuid = t.uuid
+    number = case booking.nr of
+        Just nr -> nr
+        Nothing -> ""
     from = case booking.from of
         Just time -> DU.getFormatedTime time ForInput
         Nothing -> DU.getFormatedTime O.getEmptyTime ForInput
@@ -45,6 +48,14 @@ getBookingRow t booking =
           , Attr.value to
           , Attr.id ("to_" ++ booking.uuid)
         ][]
+    nrField = case t.api of
+      Just apit -> Html.input [
+          Ev.onInput (TO.SetNr tUuid booking.uuid)
+          , Attr.value number
+          , Attr.id ("nr_" ++ booking.uuid)
+          , Attr.style "width" "60px"
+        ][]
+      Nothing -> Html.text ""
     syncBtn = case t.api of
       Just api -> showActionButtonInTask t (getActionButton "arrow_two_directions" "sync" [Attr.style "width" "20px"] (TO.SyncToExtern tUuid booking.uuid))
       Nothing -> Html.text ""
@@ -52,6 +63,7 @@ getBookingRow t booking =
     Html.tr [][
       Html.td [ Attr.style "text-align" "right" ][ fromField ]
       , Html.td [][ toField ]
+      , Html.td [][ nrField ]
       , Html.td [ Attr.style "white-space" "nowrap" ][
         syncBtn
         , showActionButtonInTask t (getActionButton "minus_rect" "löschen" [Attr.style "width" "20px"] (TO.RemoveBooking tUuid booking.uuid))
@@ -82,7 +94,7 @@ getConfigForm model =
     Html.div[
       Attr.style "border" "black solid 0.5pt"
       , Attr.style "padding" "5px"
-      , Attr.style "width" "290px"
+      , Attr.style "width" "215pt"
     ][
       Html.div [][
         Html.label [Attr.for "typ", Attr.style "width" "40px", Attr.style "display" "inline-block"][ Html.text "Typ" ]
@@ -220,7 +232,7 @@ getTask t =
       , Html.table [ Attr.style "width" "100%" ][
         Html.thead [][
           Html.tr [][
-            Html.td [ Attr.colspan 2, Attr.style "text-align" "center", Attr.style "width" "100%" ][ Html.text header ]
+            Html.td [ Attr.colspan 3, Attr.style "text-align" "center", Attr.style "width" "100%" ][ Html.text header ]
             , Html.td [][ showActionButtonInTask t (getActionButton "plus_rect" "hinzufügen" [Attr.style "width" "20px"] (TO.SetTimeAndAddBooking t.uuid)) ]
           ]
         ]

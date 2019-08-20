@@ -205,6 +205,13 @@ update msg model =
             newTaskList = ListE.updateIf (\item -> item.uuid == tUuid) (\item -> {item | timeList = newTimeList, calcedTime = DU.calculateTime newTimeList tForEdit.rounded }) model.taskList
           in
             ( { model | taskList = newTaskList } , Ports.pushDataToStore (O.getTransferObj newTaskList model.apiList model.showTaskNameForm False) )
+        SetNr tUuid uuid newNr ->
+          let
+            tForEdit = DU.getTaskForEdit model tUuid
+            newTimeList = ListE.updateIf (\item -> item.uuid == uuid) (\item -> {item | nr = Just newNr}) tForEdit.timeList
+            newTaskList = ListE.updateIf (\item -> item.uuid == tUuid) (\item -> {item | timeList = newTimeList }) model.taskList
+          in
+            ( { model | taskList = newTaskList } , Ports.pushDataToStore (O.getTransferObj newTaskList model.apiList model.showTaskNameForm False) )
         SetFrom tUuid uuid newTime ->
           let
             tForEdit = DU.getTaskForEdit model tUuid

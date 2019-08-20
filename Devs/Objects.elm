@@ -52,6 +52,7 @@ type alias Booking = {
   , to: Maybe MyTime
   , rounded: Maybe MyTime
   , uuid: String
+  , nr: Maybe String
   }
 
 type alias MyTime = {
@@ -147,4 +148,5 @@ getEmptyBooking = {
   , to = Nothing
   , uuid = UUID.toString UUID.nil
   , rounded = Nothing
+  , nr = Nothing
   }

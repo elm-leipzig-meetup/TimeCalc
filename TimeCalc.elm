@@ -39,9 +39,9 @@ view model =
           else if model.showConfigApiForm then T.getConfigForm model
           else Html.div [] (
             List.append
-              [ Html.div [ Attr.style "text-align" "right" ][
+              [ Html.div [ Attr.style "text-align" "right", Attr.style "width" "225pt" ][
                 T.getActionButton "cog" "Konfigurieren" [] (TO.ToggleConfigApiForm)
-                , Html.span [ Attr.style "padding-right" "130px" ][ Html.text "" ]
+                , Html.span [ Attr.style "padding-right" "10px" ][ Html.text "" ]
                 , T.getActionButton "plus_rect" "neuer Task" [] (TO.ToggleTasknameForm)
               ] ]
               (List.map T.getTask model.taskList)
@@ -49,7 +49,7 @@ view model =
   in
     Html.div [
       Attr.style "margin-bottom" "10px"
-      , Attr.style "width" "190px"
+      , Attr.style "width" "225pt"
     ][ taskDiv ]
 
 main : Program () Model Msg

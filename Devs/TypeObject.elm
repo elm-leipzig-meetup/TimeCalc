@@ -35,6 +35,7 @@ type Msg =
   | SetTimeAndAddBooking String
   | AddBooking String Posix
   | RemoveBooking String String
+  | SetNr String String String
   | SetFrom String String String
   | SetTo String String String
   | PreSetTo String String
