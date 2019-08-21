@@ -91,12 +91,21 @@ getActionButton sign title styles event =
 
 getConfigForm: Model -> Html Msg
 getConfigForm model =
+  let
+    ticketUrl = case model.ticketUrl of
+      Just url -> url
+      Nothing -> ""
+  in
     Html.div[
       Attr.style "border" "black solid 0.5pt"
       , Attr.style "padding" "5px"
       , Attr.style "width" "215pt"
     ][
-      Html.div [][
+      Html.div[][
+        Html.label [Attr.for "tUrl", Attr.style "width" "40px", Attr.style "display" "inline-block"][ Html.text "Ticket-URL" ]
+        , Html.input [Attr.id "tUrl", Attr.type_ "url", Attr.value ticketUrl, Ev.onInput TO.SetTicketUrl][]
+      ]
+      , Html.div [][
         Html.label [Attr.for "typ", Attr.style "width" "40px", Attr.style "display" "inline-block"][ Html.text "Typ" ]
         , Html.select [
           Attr.id "typ"
@@ -176,6 +185,13 @@ getTaskNameForm model =
           , Attr.style "width" "156px"
           , EvE.onChange TO.SetTempApi
         ] (List.append [getEmptyOption] (List.map (getApiOption model.tempTaskApi) model.apiList))
+        , Html.input [
+          Attr.type_ "checkbox"
+          , Attr.id "isTicket"
+          , Attr.checked model.tempTaskIsTicket
+          , Attr.title "Ist dies eine Ticketnummer?"
+          , Ev.onCheck TO.SetTempIsTicket
+        ][]
       ]
       , Html.div [][ button ]
     ]
@@ -194,8 +210,8 @@ getApiOption sApi api =
   in
     Html.option[Attr.value api.uuid, Attr.selected selected][Html.text api.apiType.name]
 
-getTask: MyTask -> Html Msg
-getTask t =
+getTask: Model -> MyTask -> Html Msg
+getTask model t =
   let
     calcedTime = case t.calcedTime of
         Just time -> DU.getFormatedTime time ForDisplay
@@ -213,9 +229,14 @@ getTask t =
       then getActionButton "editable" "freigeben" [Attr.style "width" "20px"] (TO.ToggleSaveTask t.uuid)
       else getActionButton "editable_not" "sichern" [Attr.style "width" "20px"] (TO.ToggleSaveTask t.uuid)
     header = if calcedH > 0 then (calcedTime ++ " = " ++ calcedHours) else ""
+    ticketUrl = case model.ticketUrl of
+      Just url -> url
+      Nothing -> ""
     taskNameAttr = if t.saved
-      then [ Attr.style "padding-right" "5px" ]
-      else [ Attr.style "padding-right" "5px", Attr.style "cursor" "pointer", Ev.onClick (EditTaskname t.uuid) ]
+      then if t.isTicket && not (String.isEmpty ticketUrl)
+        then [ Attr.style "padding-right" "5px", Attr.style "cursor" "pointer" , Ev.onClick (TO.GoTo (ticketUrl ++ t.taskName) True ) ]
+        else [ Attr.style "padding-right" "5px" ]
+      else [ Attr.style "padding-right" "5px", Attr.style "cursor" "pointer", Ev.onClick (TO.EditTaskname t.uuid) ]
   in
     Html.fieldset [
       Attr.style "padding-right" "0px"

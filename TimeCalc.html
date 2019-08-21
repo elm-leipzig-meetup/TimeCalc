@@ -9,6 +9,15 @@
     <div id="timeCalcDiv" style="margin-bottom:10px; position:relative;border:1px solid #BCBCBC;width:180px;text-align:center;font-family:arial,verdana;"></div>
     <script>
         var app = Elm.TimeCalc.init({node : document.getElementById('timeCalcDiv')});
+        app.ports.openWindow.subscribe(function (goTo) {
+          var url = goTo[0];
+    			var asNewTab = goTo[1];
+          if(asNewTab) {
+            window.open(url, "_blank");
+          } else {
+            window.open(url);
+          }
+        });
         app.ports.pushDataToStore.subscribe(function (to2) {
             var TimeCalcObject = {taskList: to2.tasks, showTaskNameForm: to2.showTaskNameForm, apiList: to2.apiList};
             if(!to2.initialise) {

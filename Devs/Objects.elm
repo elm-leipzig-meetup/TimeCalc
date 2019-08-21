@@ -14,6 +14,7 @@ type alias Model = {
   , tempTaskName: Maybe String
   , tempTaskApi: Maybe Api
   , tempTaskUuid: Maybe String
+  , tempTaskIsTicket: Bool
   , showTaskNameForm: Bool
   , timeZone: Zone
   , taskUuidForDel: Maybe String
@@ -21,6 +22,7 @@ type alias Model = {
   , apiList: List Api
   , apiTypeList: List ApiType
   , apiForAdd: Maybe Api
+  , ticketUrl: Maybe String
   }
 
 type alias TransferObj = {
@@ -45,6 +47,7 @@ type alias MyTask = {
   , rounded: Bool
   , saved: Bool
   , api: Maybe Api
+  , isTicket: Bool
   }
 
 type alias Booking = {
@@ -83,6 +86,7 @@ initialModel = {
   , tempTaskName = Nothing
   , tempTaskApi = Nothing
   , tempTaskUuid = Nothing
+  , tempTaskIsTicket = False
   , showTaskNameForm = True
   , timeZone = Time.utc
   , taskUuidForDel = Nothing
@@ -90,6 +94,7 @@ initialModel = {
   , apiList = []
   , apiTypeList = getApiTypList
   , apiForAdd = Nothing
+  , ticketUrl = Just "https://hiszilla.his.de/hiszilla/show_bug.cgi?id="
   }
 
 getEmptyApi: Api
@@ -137,6 +142,7 @@ getEmptyTask = {
   , rounded = False
   , saved = False
   , api = Nothing
+  , isTicket = False
   }
 
 getEmptyTime: MyTime

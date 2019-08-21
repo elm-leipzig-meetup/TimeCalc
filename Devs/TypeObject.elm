@@ -10,18 +10,21 @@ type Msg =
   NoOp
   | NoOpStr String
   | NoOpInt Int
+  | GoTo String Bool
   | ReadDataFromPublish TransferObj2
   | ToggleConfigApiForm
   | AddConfigApi
   | RemoveApi String
   | SetApiType String
   | SetUrl String
+  | SetTicketUrl String
   | SetUser String
   | SetPwd String
   | SetTimeZone Zone
   | ToggleTasknameForm
   | SetTempTaskname String
   | SetTempApi String
+  | SetTempIsTicket Bool
   | EditTaskname String
   | SetTask String
   | SetTaskWithEnter String Int

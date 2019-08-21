@@ -22,6 +22,7 @@ update msg model =
         NoOp -> ( model , Cmd.none)
         NoOpStr val -> ( model , Cmd.none)
         NoOpInt val -> ( model , Cmd.none)
+        GoTo url newTab -> ( model, Ports.openWindow (url, newTab) )
         ReadDataFromPublish tO2 -> ( { model | showTaskNameForm = tO2.showTaskNameForm, taskList = tO2.tasks, random = tO2.random, apiList = tO2.apiList } , Cmd.none)
         ToggleConfigApiForm ->
           let
@@ -64,6 +65,7 @@ update msg model =
               Nothing -> Nothing
           in
             ( { model | apiForAdd = afa} , Cmd.none)
+        SetTicketUrl url -> ( { model | ticketUrl = if not (String.isEmpty url) then Just url else Nothing} , Cmd.none)
         SetUser val ->
           let
             afa = case model.apiForAdd of
@@ -91,6 +93,7 @@ update msg model =
           ( { model | showTaskNameForm = not model.showTaskNameForm } , cmds)
         SetTempTaskname name -> ( { model | tempTaskName = Just name } , Cmd.none)
         SetTempApi aUuid -> ( { model | tempTaskApi = DU.getApiForEdit model aUuid } , Cmd.none)
+        SetTempIsTicket isTicket -> ( { model | tempTaskIsTicket = isTicket } , Cmd.none)
         EditTaskname tUuid ->
           let
             tForEdit = DU.getTaskForEdit model tUuid
@@ -98,6 +101,7 @@ update msg model =
             ( { model | tempTaskUuid = Just tUuid
               , tempTaskName = Just tForEdit.taskName
               , tempTaskApi = tForEdit.api
+              , tempTaskIsTicket = tForEdit.isTicket
               , showTaskNameForm = True } , DU.focusSearchBox ("taskName"))
         SetTask tUuid ->
           let
@@ -105,12 +109,13 @@ update msg model =
             tempTaskName = case model.tempTaskName of
                 Just string -> string
                 Nothing -> ""
-            newTaskList = ListE.updateIf (\item -> item.uuid == tUuid) (\item -> {item | taskName = tempTaskName, api=model.tempTaskApi}) model.taskList
+            newTaskList = ListE.updateIf (\item -> item.uuid == tUuid) (\item -> {item | taskName = tempTaskName, api=model.tempTaskApi, isTicket = model.tempTaskIsTicket}) model.taskList
           in
             ( {model | taskList = newTaskList,
                 tempTaskName = Nothing
                 , tempTaskApi = Nothing
                 , tempTaskUuid = Nothing
+                , tempTaskIsTicket = False
                 , showTaskNameForm = False
               }
               , Ports.pushDataToStore (O.getTransferObj newTaskList model.apiList False False)
@@ -121,13 +126,14 @@ update msg model =
             tempTaskName = case model.tempTaskName of
                 Just string -> string
                 Nothing -> ""
-            newTaskList = ListE.updateIf (\item -> item.uuid == tUuid) (\item -> {item | taskName = tempTaskName, api=model.tempTaskApi}) model.taskList
+            newTaskList = ListE.updateIf (\item -> item.uuid == tUuid) (\item -> {item | taskName = tempTaskName, api=model.tempTaskApi, isTicket = model.tempTaskIsTicket}) model.taskList
           in
             if key == 13
               then ( {model | taskList = newTaskList,
                   tempTaskName = Nothing
                   , tempTaskApi = Nothing
                   , tempTaskUuid = Nothing
+                  , tempTaskIsTicket = False
                   , showTaskNameForm = False
                 }
                 , Ports.pushDataToStore (O.getTransferObj newTaskList model.apiList False False)
@@ -145,12 +151,13 @@ update msg model =
                 Just string -> string
                 Nothing -> ""
             newTimeList = [{ emptyBooking | from = Just now, uuid = (UUID.toString newUuidB) }]
-            newTask = { emptyTask | taskName = tempTaskName, api=model.tempTaskApi, timeList = newTimeList, uuid = (UUID.toString newUuidT) }
+            newTask = { emptyTask | taskName = tempTaskName, api=model.tempTaskApi, isTicket = model.tempTaskIsTicket, timeList = newTimeList, uuid = (UUID.toString newUuidT) }
             newTaskList = List.append model.taskList [newTask]
           in
             ( {model | taskList = newTaskList
                 , tempTaskName = Nothing
                 , tempTaskApi = Nothing
+                , tempTaskIsTicket = False
                 , showTaskNameForm = False
                 , currentSeed = Just newSeedB
               }
