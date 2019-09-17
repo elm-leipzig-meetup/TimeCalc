@@ -232,9 +232,15 @@ getTask model t =
     ticketUrl = case model.ticketUrl of
       Just url -> url
       Nothing -> ""
+    taskApi = case t.api of
+      Just api -> api
+      Nothing -> O.getEmptyApi
     taskNameAttr = if t.saved
-      then if t.isTicket && not (String.isEmpty ticketUrl)
-        then [ Attr.style "padding-right" "5px", Attr.style "cursor" "pointer" , Ev.onClick (TO.GoTo (ticketUrl ++ t.taskName) True ) ]
+      then
+        if t.isTicket && not (String.isEmpty ticketUrl)
+          then [ Attr.style "padding-right" "5px", Attr.style "cursor" "pointer" , Ev.onClick (TO.GoTo (ticketUrl ++ t.taskName) True ) ]
+        else if not(String.isEmpty taskApi.apiUrl)
+          then [ Attr.style "padding-right" "5px", Attr.style "cursor" "pointer" , Ev.onClick (TO.GoTo (taskApi.apiUrl ++ t.taskName) True ) ]
         else [ Attr.style "padding-right" "5px" ]
       else [ Attr.style "padding-right" "5px", Attr.style "cursor" "pointer", Ev.onClick (TO.EditTaskname t.uuid) ]
   in
