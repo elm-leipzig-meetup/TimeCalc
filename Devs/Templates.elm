@@ -6,6 +6,7 @@ import Html.Events as Ev exposing (onClick, onInput, on, keyCode)
 import Html.Events.Extra as EvE exposing (onChange)
 import Json.Decode as Json
 import List exposing (..)
+import List.Extra as ListE exposing (..)
 
 import Devs.Objects as O exposing (..)
 import Devs.TypeObject as TO exposing (..)
@@ -180,7 +181,7 @@ getTaskNameForm model =
           , Ev.on "keydown" (Json.map returnEvent Ev.keyCode)
           , Ev.onInput TO.SetTempTaskname
           , Attr.placeholder "Taskname"
-          , Attr.maxlength 15
+          --, Attr.maxlength 15
         ][]
         , Html.select [
           Attr.id "typ"
@@ -237,12 +238,15 @@ getTask model t =
     taskApi = case t.api of
       Just api -> api
       Nothing -> O.getEmptyApi
+    taskNameList = String.split "|" t.taskName
+    taskName = String.trim (Maybe.withDefault "" (List.head taskNameList))
+    taskNumber = String.trim (Maybe.withDefault taskName (ListE.last taskNameList))
     taskNameAttr = if t.saved
       then
         if t.isTicket && not (String.isEmpty ticketUrl)
-          then [ Attr.style "padding-right" "5px", Attr.style "cursor" "pointer" , Ev.onClick (TO.GoTo (ticketUrl ++ t.taskName) True ) ]
+          then [ Attr.style "padding-right" "5px", Attr.style "cursor" "pointer" , Ev.onClick (TO.GoTo (ticketUrl ++ taskNumber) True ) ]
         else if not(String.isEmpty taskApi.apiUrl)
-          then [ Attr.style "padding-right" "5px", Attr.style "cursor" "pointer" , Ev.onClick (TO.GoTo (taskApi.apiUrl ++ t.taskName) True ) ]
+          then [ Attr.style "padding-right" "5px", Attr.style "cursor" "pointer" , Ev.onClick (TO.GoTo (taskApi.apiUrl ++ taskNumber) True ) ]
         else [ Attr.style "padding-right" "5px" ]
       else [ Attr.style "padding-right" "5px", Attr.style "cursor" "pointer", Ev.onClick (TO.EditTaskname t.uuid) ]
     bgColor = if List.length (List.filter (\a -> (Maybe.withDefault {hour=0, minute = 0} a.to) == {hour=0, minute = 0}) t.timeList) > 0 then "#ffa5006e" else "white"
@@ -253,7 +257,7 @@ getTask model t =
       , Attr.style "background-color" bgColor
     ][
       Html.legend [][
-        Html.span taskNameAttr [ Html.text t.taskName ]
+        Html.span taskNameAttr [ Html.text taskName ]
         , showActionButtonInTask t (getActionButton "delete" "löschen" [Attr.style "width" "20px"] (TO.RemoveTask t.uuid))
         , Html.span [ Attr.style "padding-right" "5px" ][ Html.text "" ]
         , showActionButtonInTask t roundBtn
