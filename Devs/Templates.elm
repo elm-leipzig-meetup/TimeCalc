@@ -49,7 +49,9 @@ getBookingRow t booking =
           , Attr.id ("to_" ++ booking.uuid)
         ][]
     nrField = case t.api of
-      Just apit -> Html.input [
+      Just apit -> if t.saved
+        then Html.text number
+        else Html.input [
           Ev.onInput (TO.SetNr tUuid booking.uuid)
           , Attr.value number
           , Attr.id ("nr_" ++ booking.uuid)
@@ -243,10 +245,12 @@ getTask model t =
           then [ Attr.style "padding-right" "5px", Attr.style "cursor" "pointer" , Ev.onClick (TO.GoTo (taskApi.apiUrl ++ t.taskName) True ) ]
         else [ Attr.style "padding-right" "5px" ]
       else [ Attr.style "padding-right" "5px", Attr.style "cursor" "pointer", Ev.onClick (TO.EditTaskname t.uuid) ]
+    bgColor = if List.length (List.filter (\a -> (Maybe.withDefault {hour=0, minute = 0} a.to) == {hour=0, minute = 0}) t.timeList) > 0 then "#ffa5006e" else "white"
   in
     Html.fieldset [
       Attr.style "padding-right" "0px"
       , Attr.style "padding-top" "0px"
+      , Attr.style "background-color" bgColor
     ][
       Html.legend [][
         Html.span taskNameAttr [ Html.text t.taskName ]

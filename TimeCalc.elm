@@ -44,7 +44,7 @@ view model =
                 , Html.span [ Attr.style "padding-right" "10px" ][ Html.text "" ]
                 , T.getActionButton "plus_rect" "neuer Task" [] (TO.ToggleTasknameForm)
               ] ]
-              (List.map (T.getTask model) model.taskList)
+              (List.map (T.getTask model) (List.sortBy .taskName model.taskList))
             )
   in
     Html.div [
