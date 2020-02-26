@@ -1,6 +1,7 @@
 module Devs.Templates exposing (getTaskNameForm,getActionButton,getTask, getConfigForm)
 
 import Html exposing (..)
+import Html.Extra as HtmlE exposing ( .. )
 import Html.Attributes as Attr exposing (..)
 import Html.Events as Ev exposing (onClick, onInput, on, keyCode)
 import Html.Events.Extra as EvE exposing (onChange)
@@ -231,6 +232,9 @@ getTask model t =
     saveBtn = if t.saved
       then getActionButton "editable" "freigeben" [Attr.style "width" "20px"] (TO.ToggleSaveTask t.uuid)
       else getActionButton "editable_not" "sichern" [Attr.style "width" "20px"] (TO.ToggleSaveTask t.uuid)
+    delBtn = if List.length t.timeList > 0
+      then HtmlE.nothing
+      else (getActionButton "delete" "löschen" [Attr.style "width" "20px"] (TO.RemoveTask t.uuid))
     header = if calcedH > 0 then (calcedTime ++ " = " ++ calcedHours) else ""
     ticketUrl = case model.ticketUrl of
       Just url -> url
@@ -258,7 +262,7 @@ getTask model t =
     ][
       Html.legend [][
         Html.span taskNameAttr [ Html.text taskName ]
-        , showActionButtonInTask t (getActionButton "delete" "löschen" [Attr.style "width" "20px"] (TO.RemoveTask t.uuid))
+        , showActionButtonInTask t delBtn
         , Html.span [ Attr.style "padding-right" "5px" ][ Html.text "" ]
         , showActionButtonInTask t roundBtn
         , Html.span [ Attr.style "padding-right" "5px" ][ Html.text "" ]
@@ -276,4 +280,4 @@ getTask model t =
     ]
 
 showActionButtonInTask: MyTask -> Html Msg -> Html Msg
-showActionButtonInTask t btn = if not t.saved then btn else Html.text ""
+showActionButtonInTask t btn = if not t.saved then btn else HtmlE.nothing
