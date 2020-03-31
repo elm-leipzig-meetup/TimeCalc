@@ -257,3 +257,31 @@ update msg model =
           in
             ( { model | taskList = newTaskList } , Ports.pushDataToStore (O.getTransferObj newTaskList model.apiList model.showTaskNameForm False) )
         SyncToExtern tUuid uuid -> ( model , Cmd.none)
+        SetT1 pos val ->
+          let
+            timeTemp = case model.t1 of
+              Just myTime -> myTime
+              Nothing -> O.getEmptyTime
+            time = if pos == "h"
+              then { timeTemp | hour = Maybe.withDefault 0 (String.toInt val) }
+              else { timeTemp | minute = Maybe.withDefault 0 (String.toInt val) }
+          in
+            ( { model | t1 = Just time }, Cmd.none)
+        SetT2 pos val ->
+          let
+            timeTemp = case model.t2 of
+              Just myTime -> myTime
+              Nothing -> O.getEmptyTime
+            time = if pos == "h"
+              then { timeTemp | hour = Maybe.withDefault 0 (String.toInt val) }
+              else { timeTemp | minute = Maybe.withDefault 0 (String.toInt val) }
+          in
+            ( { model | t2 = Just time }, Cmd.none)
+        SetT3 val ->
+          let
+            time = case model.t3 of
+              Just myTime -> Maybe.withDefault 0 (String.toFloat val)
+              Nothing -> 0.0
+          in
+            ( { model | t3 = Just time }, Cmd.none)
+        ClearTimes -> ( { model | t1 = Nothing, t2 = Nothing, t3 = Nothing }, Cmd.none)

@@ -46,3 +46,7 @@ type Msg =
   | RoundUp String
   | DeRound String
   | SyncToExtern String String
+  | SetT1 String String
+  | SetT2 String String
+  | SetT3 String
+  | ClearTimes

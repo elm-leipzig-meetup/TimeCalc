@@ -1,4 +1,4 @@
-module Devs.Templates exposing (getTaskNameForm,getActionButton,getTask, getConfigForm)
+module Devs.Templates exposing (getTaskNameForm,getActionButton,getTask,getConfigForm)
 
 import Html exposing (..)
 import Html.Extra as HtmlE exposing ( .. )
@@ -9,8 +9,8 @@ import Json.Decode as Json
 import List exposing (..)
 import List.Extra as ListE exposing (..)
 
-import Devs.Objects as O exposing (..)
 import Devs.TypeObject as TO exposing (..)
+import Devs.Objects as O exposing (..)
 import Devs.Utils as DU exposing (getFormatedTime, getHoursOfTime)
 
 getBookingRow: MyTask -> Booking -> Html Msg
@@ -254,6 +254,7 @@ getTask model t =
         else [ Attr.style "padding-right" "5px" ]
       else [ Attr.style "padding-right" "5px", Attr.style "cursor" "pointer", Ev.onClick (TO.EditTaskname t.uuid) ]
     bgColor = if List.length (List.filter (\a -> (Maybe.withDefault {hour=0, minute = 0} a.to) == {hour=0, minute = 0}) t.timeList) > 0 then "#ffa5006e" else "white"
+    displayList = if List.length (List.filter (\a -> (Maybe.withDefault {hour=0, minute = 0} a.to) == {hour=0, minute = 0}) t.timeList) > 0 then "block" else "none"
   in
     Html.fieldset [
       Attr.style "padding-right" "0px"
@@ -268,7 +269,7 @@ getTask model t =
         , Html.span [ Attr.style "padding-right" "5px" ][ Html.text "" ]
         , saveBtn
       ]
-      , Html.table [ Attr.style "width" "100%" ][
+      , Html.table [ Attr.style "width" "100%", Attr.style "display" displayList ][
         Html.thead [][
           Html.tr [][
             Html.td [ Attr.colspan 3, Attr.style "text-align" "center", Attr.style "width" "100%" ][ Html.text header ]

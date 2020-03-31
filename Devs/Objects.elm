@@ -23,6 +23,9 @@ type alias Model = {
   , apiTypeList: List ApiType
   , apiForAdd: Maybe Api
   , ticketUrl: Maybe String
+  , t1: Maybe MyTime
+  , t2: Maybe MyTime
+  , t3: Maybe Float
   }
 
 type alias TransferObj = {
@@ -95,6 +98,9 @@ initialModel = {
   , apiTypeList = getApiTypList
   , apiForAdd = Nothing
   , ticketUrl = Just "https://hiszilla.his.de/hiszilla/show_bug.cgi?id="
+  , t1 = Nothing
+  , t2 = Nothing
+  , t3 = Nothing
   }
 
 getEmptyApi: Api

@@ -7,8 +7,10 @@ import Devs.Ports as Ports exposing (setDataFromStore)
 import Browser exposing (..)
 import Html exposing (..)
 import Html.Attributes as Attr exposing (..)
+import Html.Events as Ev exposing (onClick, onInput, on, keyCode)
 import Time
 import Task
+import Round
 
 import Devs.Objects as O exposing (..)
 import Devs.TypeObject as TO exposing (..)
@@ -24,6 +26,16 @@ import Debug exposing (log)
 view : Model -> Html Msg
 view model =
   let
+    t1 = case model.t1 of
+      Just myTime -> myTime
+      Nothing -> O.getEmptyTime
+    t2 = case model.t2 of
+      Just myTime -> myTime
+      Nothing -> O.getEmptyTime
+    t3 = case model.t3 of
+      Just myTime -> myTime
+      Nothing -> 0.0
+    timeCalc = Round.round 2 ((((toFloat t1.hour) + ((toFloat t1.minute) / 60)) + ((toFloat t2.hour) + ((toFloat t2.minute) / 60)) + t3) / 8 * 800)
     taskDiv = case model.taskUuidForDel of
         Just tUuid ->
           let
@@ -43,6 +55,22 @@ view model =
                 T.getActionButton "cog" "Konfigurieren" [] (TO.ToggleConfigApiForm)
                 , Html.span [ Attr.style "padding-right" "10px" ][ Html.text "" ]
                 , T.getActionButton "plus_rect" "neuer Task" [] (TO.ToggleTasknameForm)
+              ]
+              , Html.div[][
+                Html.label [Attr.for "t1h", Attr.style "width" "40px", Attr.style "display" "inline-block"][ Html.text "CU" ]
+                , Html.input [Attr.id "t1h", Attr.placeholder "hhh", Attr.style "width" "3em", Attr.type_ "number", Attr.min "0", Attr.value (String.fromInt t1.hour) , Ev.onInput (TO.SetT1 "h")][]
+                , Html.input [Attr.id "t1m", Attr.placeholder "mm", Attr.style "width" "2.5em", Attr.type_ "number", Attr.min "0", Attr.max "59", Attr.value (String.fromInt t1.minute), Ev.onInput (TO.SetT1 "m")][]
+                , Html.br[][]
+                , Html.label [Attr.for "t2", Attr.style "width" "40px", Attr.style "display" "inline-block"][ Html.text "LYSS" ]
+                , Html.input [Attr.id "t2h", Attr.placeholder "hhh", Attr.style "width" "3em", Attr.type_ "number", Attr.min "0", Attr.value (String.fromInt t2.hour), Ev.onInput (TO.SetT2 "h")][]
+                , Html.input [Attr.id "t2m", Attr.placeholder "mm", Attr.style "width" "2.5em", Attr.type_ "number", Attr.min "0", Attr.max "59", Attr.value (String.fromInt t2.minute), Ev.onInput (TO.SetT2 "m")][]
+                , Html.br[][]
+                , Html.label [Attr.for "t3", Attr.style "width" "40px", Attr.style "display" "inline-block"][ Html.text "Redmine" ]
+                , Html.input [Attr.id "t3", Attr.style "width" "5em", Attr.style "text-align" "right", Attr.type_ "number", Attr.step "0.01", Attr.value (String.fromFloat t3), Ev.onInput TO.SetT3][]
+                , Html.div[ Attr.style "display" "inline-block", Attr.style "position" "relative", Attr.style "left" "20pt", Attr.style "top" "-50pt" ][
+                   Html.text timeCalc
+                   , T.getActionButton "panel_close" "leeren" [] (TO.ClearTimes)
+                ]
               ] ]
               (List.map (T.getTask model) (List.sortBy .taskName model.taskList))
             )
