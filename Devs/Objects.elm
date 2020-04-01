@@ -16,6 +16,7 @@ type alias Model = {
   , tempTaskUuid: Maybe String
   , tempTaskIsTicket: Bool
   , showTaskNameForm: Bool
+  , showCalcForm: Bool
   , timeZone: Zone
   , taskUuidForDel: Maybe String
   , showConfigApiForm: Bool
@@ -31,6 +32,7 @@ type alias Model = {
 type alias TransferObj = {
     tasks: List MyTask
     , showTaskNameForm: Bool
+    , showCalcForm: Bool
     , initialise: Bool
     , apiList: List Api
   }
@@ -38,6 +40,7 @@ type alias TransferObj = {
 type alias TransferObj2 = {
     tasks: List MyTask
     , showTaskNameForm: Bool
+    , showCalcForm: Bool
     , random: Int
     , apiList: List Api
   }
@@ -91,6 +94,7 @@ initialModel = {
   , tempTaskUuid = Nothing
   , tempTaskIsTicket = False
   , showTaskNameForm = True
+  , showCalcForm = False
   , timeZone = Time.utc
   , taskUuidForDel = Nothing
   , showConfigApiForm = False
@@ -112,10 +116,11 @@ getEmptyApi = {
   , uuid=UUID.toString UUID.nil
   }
 
-getTransferObj: List MyTask -> List Api -> Bool -> Bool -> TransferObj
-getTransferObj taskList apiList showTaskNameForm initialise = {
+getTransferObj: List MyTask -> List Api -> Bool -> Bool -> Bool -> TransferObj
+getTransferObj taskList apiList showTaskNameForm showCalcForm initialise = {
     tasks=taskList
     , showTaskNameForm=showTaskNameForm
+    , showCalcForm = showCalcForm
     , initialise=initialise
     , apiList=apiList
   }

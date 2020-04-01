@@ -19,7 +19,7 @@
           }
         });
         app.ports.pushDataToStore.subscribe(function (to2) {
-            var TimeCalcObject = {taskList: to2.tasks, showTaskNameForm: to2.showTaskNameForm, apiList: to2.apiList};
+            var TimeCalcObject = {taskList: to2.tasks, showTaskNameForm: to2.showTaskNameForm, showCalcForm: to2.showCalcForm, apiList: to2.apiList};
             if(!to2.initialise) {
                 window.localStorage.setItem('TimeCalc', JSON.stringify(TimeCalcObject));
             }
@@ -27,13 +27,14 @@
             if(TimeCalcObject != null) {
                 taskList = TimeCalcObject.taskList;
                 showTaskNameForm = TimeCalcObject.showTaskNameForm;
+                showCalcForm = TimeCalcObject.showCalcForm;
                 apiList = TimeCalcObject.apiList;
             }
           	var min=10000;
     		    var max=2147483647;
             var random = Math.floor(Math.random() * (+max - +min)) + +min
             if (typeof taskList !== 'undefined') {
-                app.ports.setDataFromStore.send({tasks: taskList, showTaskNameForm: showTaskNameForm, random: random, apiList: apiList});
+                app.ports.setDataFromStore.send({tasks: taskList, showTaskNameForm: showTaskNameForm, showCalcForm: showCalcForm, random: random, apiList: apiList});
             }
         });
     </script>

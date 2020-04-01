@@ -253,8 +253,9 @@ getTask model t =
           then [ Attr.style "padding-right" "5px", Attr.style "cursor" "pointer" , Ev.onClick (TO.GoTo (taskApi.apiUrl ++ taskNumber) True ) ]
         else [ Attr.style "padding-right" "5px" ]
       else [ Attr.style "padding-right" "5px", Attr.style "cursor" "pointer", Ev.onClick (TO.EditTaskname t.uuid) ]
-    bgColor = if List.length (List.filter (\a -> (Maybe.withDefault {hour=0, minute = 0} a.to) == {hour=0, minute = 0}) t.timeList) > 0 then "#ffa5006e" else "white"
-    displayList = if List.length (List.filter (\a -> (Maybe.withDefault {hour=0, minute = 0} a.to) == {hour=0, minute = 0}) t.timeList) > 0 then "block" else "none"
+    bgColor = if List.length (List.filter (\a -> (Maybe.withDefault O.getEmptyTime a.to) == O.getEmptyTime) t.timeList) > 0 then "#ffa5006e" else "white"
+    --displayList = if List.length (List.filter (\a -> (Maybe.withDefault O.getEmptyTime a.to) == O.getEmptyTime) t.timeList) > 0 then "block" else "none"
+    displayList = "block"
   in
     Html.fieldset [
       Attr.style "padding-right" "0px"
