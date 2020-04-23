@@ -50,3 +50,5 @@ type Msg =
   | SetT2 String String
   | SetT3 String
   | ClearTimes
+  | ToggleCommentForm (Maybe (String, String))
+  | SetBookingComment String String String

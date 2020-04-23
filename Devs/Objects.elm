@@ -20,6 +20,7 @@ type alias Model = {
   , timeZone: Zone
   , taskUuidForDel: Maybe String
   , showConfigApiForm: Bool
+  , commentID: Maybe (String,String)
   , apiList: List Api
   , apiTypeList: List ApiType
   , apiForAdd: Maybe Api
@@ -62,6 +63,7 @@ type alias Booking = {
   , rounded: Maybe MyTime
   , uuid: String
   , nr: Maybe String
+  , comment: Maybe String
   }
 
 type alias MyTime = {
@@ -98,6 +100,7 @@ initialModel = {
   , timeZone = Time.utc
   , taskUuidForDel = Nothing
   , showConfigApiForm = False
+  , commentID = Nothing
   , apiList = []
   , apiTypeList = getApiTypList
   , apiForAdd = Nothing
@@ -166,4 +169,5 @@ getEmptyBooking = {
   , uuid = UUID.toString UUID.nil
   , rounded = Nothing
   , nr = Nothing
+  , comment = Nothing
   }

@@ -1,4 +1,4 @@
-module Devs.Templates exposing (getTaskNameForm,getActionButton,getTask,getConfigForm)
+module Devs.Templates exposing (getTaskNameForm,getActionButton,getTask,getConfigForm, getFormDiv)
 
 import Html exposing (..)
 import Html.Extra as HtmlE exposing ( .. )
@@ -63,6 +63,7 @@ getBookingRow t booking =
     syncBtn = case t.api of
       Just api -> showActionButtonInTask t (getActionButton "arrow_two_directions" "sync" [Attr.style "width" "20px"] (TO.SyncToExtern tUuid booking.uuid))
       Nothing -> Html.text ""
+    comment = "Kommentar: " ++ Maybe.withDefault "leer" booking.comment
   in
     Html.tr [][
       Html.td [ Attr.style "text-align" "right" ][ fromField ]
@@ -70,6 +71,7 @@ getBookingRow t booking =
       , Html.td [][ nrField ]
       , Html.td [ Attr.style "white-space" "nowrap" ][
         syncBtn
+        , showActionButtonInTask t (getActionButton "comment" comment [Attr.style "width" "20px"] (TO.ToggleCommentForm (Just (tUuid, booking.uuid))))
         , showActionButtonInTask t (getActionButton "minus_rect" "löschen" [Attr.style "width" "20px"] (TO.RemoveBooking tUuid booking.uuid))
       ]
     ]
@@ -283,3 +285,50 @@ getTask model t =
 
 showActionButtonInTask: MyTask -> Html Msg -> Html Msg
 showActionButtonInTask t btn = if not t.saved then btn else HtmlE.nothing
+
+getFormDiv: Model -> Int -> Html Msg -> Bool -> List (Html Msg) -> Msg -> Html Msg
+getFormDiv model width subForm showForm addButtons event =
+  let
+    leftSpace = (width - 524) // 2
+    display = if showForm then "block" else "none"
+  in
+    Html.div (List.append [ Attr.style "display" display] formBG )[
+      Html.div (List.append [ Attr.style "margin-left" ((String.fromInt leftSpace) ++ "px") ] formDiv) [
+        subForm
+        , Html.div[] (List.append [getActionButton "panel_close" "schließen" [] event] addButtons)
+      ]
+    ]
+
+formDiv = [
+    Attr.style "background-color" "#fff"
+    , Attr.style "margin-bottom" "30px"
+    , Attr.style "padding" "15px"
+    , Attr.style "-webkit-border-radius" "8px"
+    , Attr.style "-moz-border-radius" "8px"
+    , Attr.style "-ms-border-radius" "8px"
+    , Attr.style "-o-border-radius" "8px"
+    , Attr.style "border-radius" "8px"
+    , Attr.style "-webkit-box-shadow" "0px 5px 20px rgba(0,0,0,0.3)"
+    , Attr.style "-moz-box-shadow" "0px 5px 20px rgba(0,0,0,0.3)"
+    , Attr.style "-ms-box-shadow" "0px 5px 20px rgba(0,0,0,0.3)"
+    , Attr.style "-o-box-shadow" "0px 5px 20px rgba(0,0,0,0.3)"
+    , Attr.style "box-shadow" "0px 5px 20px rgba(0,0,0,0.3)"
+    , Attr.style "margin-top" "120px"
+    , Attr.style "margin-left" "30%"
+    , Attr.style "margin-right" "30%"
+    , Attr.style "width" "490px"
+    , Attr.style "border" "2px solid #a6b3b3"
+    , Attr.style "max-height" "80%"
+    , Attr.style "overflow-y" "auto"
+    , Attr.style "margin-top" "50px"
+  ]
+
+formBG = [
+    Attr.style "z-index" "1010"
+    , Attr.style "position" "fixed"
+    , Attr.style "top" "0"
+    , Attr.style "left" "0"
+    , Attr.style "width" "100%"
+    , Attr.style "height" "100%"
+    , Attr.style "background-color" "#ffffff85"
+  ]

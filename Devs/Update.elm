@@ -285,3 +285,12 @@ update msg model =
           in
             ( { model | t3 = Just time }, Cmd.none)
         ClearTimes -> ( { model | showCalcForm = (not model.showCalcForm), t1 = Nothing, t2 = Nothing, t3 = Nothing }, Cmd.none)
+        ToggleCommentForm ids -> ( { model | commentID = ids }, Cmd.none)
+        SetBookingComment tUuid bUuid val ->
+          let
+            newComment = if String.length (String.trim val) > 0 then Just val else Nothing
+            tForEdit = DU.getTaskForEdit model tUuid
+            newTimeList = ListE.updateIf (\item -> item.uuid == bUuid) (\item -> {item | comment = newComment}) tForEdit.timeList
+            newTaskList = ListE.updateIf (\item -> item.uuid == tUuid) (\item -> {item | timeList = newTimeList, calcedTime = DU.calculateTime newTimeList tForEdit.rounded }) model.taskList
+          in
+            ( { model | taskList = newTaskList } , Ports.pushDataToStore (O.getTransferObj newTaskList model.apiList model.showTaskNameForm model.showCalcForm False) )

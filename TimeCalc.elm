@@ -19,7 +19,7 @@ import Devs.Objects as O exposing (..)
 import Devs.TypeObject as TO exposing (..)
 import Devs.Update as U exposing (..)
 import Devs.Utils as DU exposing (getTaskForEdit)
-import Devs.Templates as T exposing (getTaskNameForm,getActionButton,getTask, getConfigForm)
+import Devs.Templates as T exposing (getTaskNameForm,getActionButton,getTask, getConfigForm, getFormDiv)
 
 import Debug exposing (log)
 
@@ -84,11 +84,22 @@ view model =
               , calcForm ]
               (List.map (T.getTask model) (List.sortBy .taskName model.taskList))
             )
+    comment = case model.commentID of
+        Nothing -> HtmlE.nothing
+        Just ( tUuid, bUuid ) ->
+          let
+            bList = List.filter (\b -> b.uuid == bUuid) (DU.getTaskForEdit model tUuid).timeList
+            booking = Maybe.withDefault O.getEmptyBooking (List.head bList)
+            delCommentBtn = T.getActionButton "delete" "Kommentar löschen" [Attr.style "width" "20px", Attr.style "margin-left" "5px"] (TO.SetBookingComment tUuid bUuid "")
+            --commentForm = Html.textarea [ Attr.style "width" "480px", Attr.style "height" "80px", Ev.onInput (TO.SetBookingComment tUuid bUuid) ][ Html.text (Maybe.withDefault "" booking.comment) ]
+            commentForm = Html.textarea [ Attr.value (Maybe.withDefault "" booking.comment), Attr.style "width" "480px", Attr.style "height" "80px", Ev.onInput (TO.SetBookingComment tUuid bUuid) ][]
+          in
+            T.getFormDiv model 100 (Html.div[][commentForm]) (not (model.commentID == Nothing)) [delCommentBtn] (ToggleCommentForm Nothing)
   in
     Html.div [
       Attr.style "margin-bottom" "10px"
       , Attr.style "width" "225pt"
-    ][ taskDiv ]
+    ][comment, taskDiv]
 
 main : Program () Model Msg
 main =
