@@ -71,6 +71,7 @@ getBookingRow t booking =
       , Html.td [][ nrField ]
       , Html.td [ Attr.style "white-space" "nowrap" ][
         syncBtn
+        , if t.saved && not (comment == "Kommentar: leer") then Html.img [Attr.title comment, Attr.style "height" "15px", Attr.src ("img/comment.svg")][] else HtmlE.nothing
         , showActionButtonInTask t (getActionButton "comment" comment [Attr.style "width" "20px"] (TO.ToggleCommentForm (Just (tUuid, booking.uuid))))
         , showActionButtonInTask t (getActionButton "minus_rect" "löschen" [Attr.style "width" "20px"] (TO.RemoveBooking tUuid booking.uuid))
       ]
