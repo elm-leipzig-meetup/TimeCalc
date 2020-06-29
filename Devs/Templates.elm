@@ -61,27 +61,32 @@ getBookingRow t booking =
         ][]
       Nothing -> Html.text ""
     syncBtn = case t.api of
-      Just api -> showActionButtonInTask t (getActionButton "arrow_two_directions" "sync" [Attr.style "width" "20px"] (TO.SyncToExtern tUuid booking.uuid))
+      Just api -> showActionButtonInTask t (getActionButton Nothing "arrow_two_directions" "sync" [Attr.style "width" "20px"] (TO.SyncToExtern tUuid booking.uuid))
       Nothing -> Html.text ""
-    comment = "Kommentar: " ++ Maybe.withDefault "leer" booking.comment
+    comment = Maybe.withDefault "leer" booking.comment
   in
     Html.tr [][
       Html.td [ Attr.style "text-align" "right" ][ fromField ]
       , Html.td [][ toField ]
       , Html.td [][ nrField ]
       , Html.td [ Attr.style "white-space" "nowrap" ][
-        syncBtn
-        , if t.saved && not (comment == "Kommentar: leer") then Html.img [Attr.title comment, Attr.style "height" "15px", Attr.src ("img/comment.svg")][] else HtmlE.nothing
-        , showActionButtonInTask t (getActionButton "comment" comment [Attr.style "width" "20px"] (TO.ToggleCommentForm (Just (tUuid, booking.uuid))))
-        , showActionButtonInTask t (getActionButton "minus_rect" "löschen" [Attr.style "width" "20px"] (TO.RemoveBooking tUuid booking.uuid))
+        Html.input [ Attr.id ("copy_" ++ booking.uuid), Attr.value comment, Attr.style "position" "absolute", Attr.style "left" "-300px" ][]
+        , syncBtn
+        , if t.saved && comment /= "leer"
+          --then Html.img [Attr.title comment, Attr.style "height" "15px", Attr.src ("img/comment.svg")][]
+          then getActionButton Nothing "comment" ("Kommentar: " ++ comment) [Attr.style "width" "20px"] (TO.CopyToClipboard ("copy_" ++ booking.uuid))
+          else HtmlE.nothing
+        , showActionButtonInTask t (getActionButton Nothing "comment" ("Kommentar: " ++ comment) [Attr.style "width" "20px"] (TO.ToggleCommentForm (Just (tUuid, booking.uuid))))
+        , showActionButtonInTask t (getActionButton Nothing "minus_rect" "löschen" [Attr.style "width" "20px"] (TO.RemoveBooking tUuid booking.uuid))
       ]
     ]
 
-getActionButton: String -> String -> List (Html.Attribute Msg) -> Msg -> Html Msg
-getActionButton sign title styles event =
+getActionButton: Maybe String -> String -> String -> List (Html.Attribute Msg) -> Msg -> Html Msg
+getActionButton idObj sign title styles event =
 --  Html.input (List.append [ Ev.onClick event, Attr.type_ "button", Attr.value sign, Attr.style "cursor" "pointer" ] styles) []
   Html.button (List.append [
       Ev.onClick event
+      , Attr.id (Maybe.withDefault "" idObj)
       , Attr.style "cursor" "pointer"
       , Attr.style "width" "20px"
       , Attr.style "padding" "1px"
@@ -131,10 +136,10 @@ getConfigForm model =
         , Html.br[][]
       ]
       , Html.div [][
-        getActionButton "tick" "hinzufügen" [] (TO.AddConfigApi)
-        , getActionButton "panel_close" "schließen" [] (TO.ToggleConfigApiForm)
+        getActionButton Nothing "tick" "hinzufügen" [] (TO.AddConfigApi)
+        , getActionButton Nothing "panel_close" "schließen" [] (TO.ToggleConfigApiForm)
       ], Html.div [][
-        Html.table[](List.map (\a -> Html.tr[][ Html.td[][ if showDelBtn model.taskList a.uuid then getActionButton "delete" "löschen" [] (TO.RemoveApi a.uuid) else Html.text "" ], Html.td[][ Html.text (a.apiUrl ++ " (" ++ a.user ++ ")") ] ]) model.apiList)
+        Html.table[](List.map (\a -> Html.tr[][ Html.td[][ if showDelBtn model.taskList a.uuid then getActionButton Nothing "delete" "löschen" [] (TO.RemoveApi a.uuid) else Html.text "" ], Html.td[][ Html.text (a.apiUrl ++ " (" ++ a.user ++ ")") ] ]) model.apiList)
       ]
     ]
 
@@ -161,10 +166,10 @@ getTaskNameForm model =
     button = case model.tempTaskName of
       Just n -> if not (String.isEmpty n)
         then if String.isEmpty taskUuid
-          then getActionButton "tick" "ok" [] (TO.AddTask)
-          else getActionButton "tick" "ok" [] (TO.SetTask taskUuid)
-        else getActionButton "panel_close" "schließen" [] (TO.ToggleTasknameForm)
-      Nothing -> getActionButton "panel_close" "schließen" [] (TO.ToggleTasknameForm)
+          then getActionButton Nothing "tick" "ok" [] (TO.AddTask)
+          else getActionButton Nothing "tick" "ok" [] (TO.SetTask taskUuid)
+        else getActionButton Nothing "panel_close" "schließen" [] (TO.ToggleTasknameForm)
+      Nothing -> getActionButton Nothing "panel_close" "schließen" [] (TO.ToggleTasknameForm)
     returnEvent = case model.tempTaskName of
       Just n -> if not (String.isEmpty n)
         then if String.isEmpty taskUuid
@@ -229,15 +234,15 @@ getTask model t =
     calcedHours = (String.fromFloat calcedH) ++ " h"
     roundBtn = if calcedH > 0
       then case t.rounded of
-        True -> getActionButton "arrow_rotate_back" "entrunden" [Attr.style "width" "20px"] (TO.DeRound t.uuid)
-        False -> getActionButton "arrow_rotate_clockwise" "runden" [Attr.style "width" "20px"] (TO.RoundUp t.uuid)
+        True -> getActionButton Nothing "arrow_rotate_back" "entrunden" [Attr.style "width" "20px"] (TO.DeRound t.uuid)
+        False -> getActionButton Nothing "arrow_rotate_clockwise" "runden" [Attr.style "width" "20px"] (TO.RoundUp t.uuid)
       else Html.text ""
     saveBtn = if t.saved
-      then getActionButton "editable" "freigeben" [Attr.style "width" "20px"] (TO.ToggleSaveTask t.uuid)
-      else getActionButton "editable_not" "sichern" [Attr.style "width" "20px"] (TO.ToggleSaveTask t.uuid)
+      then getActionButton Nothing "editable" "freigeben" [Attr.style "width" "20px"] (TO.ToggleSaveTask t.uuid)
+      else getActionButton Nothing "editable_not" "sichern" [Attr.style "width" "20px"] (TO.ToggleSaveTask t.uuid)
     delBtn = if List.length t.timeList > 0
       then HtmlE.nothing
-      else (getActionButton "delete" "löschen" [Attr.style "width" "20px"] (TO.RemoveTask t.uuid))
+      else (getActionButton Nothing "delete" "löschen" [Attr.style "width" "20px"] (TO.RemoveTask t.uuid))
     header = if calcedH > 0 then (calcedTime ++ " = " ++ calcedHours) else ""
     ticketUrl = case model.ticketUrl of
       Just url -> url
@@ -277,7 +282,7 @@ getTask model t =
         Html.thead [][
           Html.tr [][
             Html.td [ Attr.colspan 3, Attr.style "text-align" "center", Attr.style "width" "100%" ][ Html.text header ]
-            , Html.td [][ showActionButtonInTask t (getActionButton "plus_rect" "hinzufügen" [Attr.style "width" "20px"] (TO.SetTimeAndAddBooking t.uuid)) ]
+            , Html.td [][ showActionButtonInTask t (getActionButton Nothing "plus_rect" "hinzufügen" [Attr.style "width" "20px"] (TO.SetTimeAndAddBooking t.uuid)) ]
           ]
         ]
         , Html.tbody [] (List.map (getBookingRow t) t.timeList)
@@ -296,7 +301,7 @@ getFormDiv model width subForm showForm addButtons event =
     Html.div (List.append [ Attr.style "display" display] formBG )[
       Html.div (List.append [ Attr.style "margin-left" ((String.fromInt leftSpace) ++ "px") ] formDiv) [
         subForm
-        , Html.div[] (List.append [getActionButton "panel_close" "schließen" [] event] addButtons)
+        , Html.div[] (List.append [getActionButton Nothing "panel_close" "schließen" [] event] addButtons)
       ]
     ]
 

@@ -24,6 +24,7 @@ update msg model =
         NoOpInt val -> ( model , Cmd.none)
         GoTo url newTab -> ( model, Ports.openWindow (url, newTab) )
         ReadDataFromPublish tO2 -> ( { model | showTaskNameForm = tO2.showTaskNameForm, showCalcForm = tO2.showCalcForm, taskList = tO2.tasks, random = tO2.random, apiList = tO2.apiList } , Cmd.none)
+        CopyToClipboard text -> ( model , Ports.pushDataToClipboard text)
         ToggleConfigApiForm ->
           let
             ( newUuid, newSeed ) = Random.step UUID.generator (DU.getSeed model)

@@ -12,6 +12,7 @@ type Msg =
   | NoOpInt Int
   | GoTo String Bool
   | ReadDataFromPublish TransferObj2
+  | CopyToClipboard String
   | ToggleConfigApiForm
   | AddConfigApi
   | RemoveApi String

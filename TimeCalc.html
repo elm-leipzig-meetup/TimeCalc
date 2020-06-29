@@ -18,6 +18,11 @@
             window.open(url);
           }
         });
+        app.ports.pushDataToClipboard.subscribe(function(text){
+          var span = document.querySelector('#'+text);
+          span.select();
+          document.execCommand('copy');
+        });
         app.ports.pushDataToStore.subscribe(function (to2) {
             var TimeCalcObject = {taskList: to2.tasks, showTaskNameForm: to2.showTaskNameForm, showCalcForm: to2.showCalcForm, apiList: to2.apiList};
             if(!to2.initialise) {

@@ -42,8 +42,8 @@ view model =
     --times = Round.round 2 ((((toFloat t1.hour) + ((toFloat t1.minute) / 60)) + ((toFloat t2.hour) + ((toFloat t2.minute) / 60)) + t3) / 8 * 800)
     times = FN.format germanLoc ((((toFloat t1.hour) + ((toFloat t1.minute) / 60)) + ((toFloat t2.hour) + ((toFloat t2.minute) / 60)) + t3) / 8 * 800)
     calcFormBtn = if (not model.showCalcForm)
-      then T.getActionButton "euro_list" "Zeitformular anzeigen" [] (TO.ClearTimes)
-      else T.getActionButton "euro_list_i" "Zeitformular leeren" [] (TO.ClearTimes)
+      then T.getActionButton Nothing "euro_list" "Zeitformular anzeigen" [] (TO.ClearTimes)
+      else T.getActionButton Nothing "euro_list_i" "Zeitformular leeren" [] (TO.ClearTimes)
     calcForm = if (not model.showCalcForm)
       then Html.div[][ HtmlE.nothing ]
       else Html.div[ ][
@@ -66,9 +66,9 @@ view model =
           in
             Html.div [][
               Html.text (tForEdit.taskName ++ " löschen?")
-              , T.getActionButton "tick" "löschen" [] (TO.RemoveTaskConfirmed)
+              , T.getActionButton Nothing "tick" "löschen" [] (TO.RemoveTaskConfirmed)
               , Html.span [ Attr.style "padding-right" "5px" ][ Html.text "" ]
-              , T.getActionButton "panel_close" "abbrechen" [] (TO.CancelRemoveTask)
+              , T.getActionButton Nothing "panel_close" "abbrechen" [] (TO.CancelRemoveTask)
               ]
         Nothing -> if model.showTaskNameForm then T.getTaskNameForm model
           else if model.showConfigApiForm then T.getConfigForm model
@@ -77,9 +77,9 @@ view model =
               [ Html.div [ Attr.style "text-align" "right", Attr.style "width" "225pt" ][
                 calcFormBtn
                 , Html.span [ Attr.style "padding-right" "10px" ][ Html.text "" ]
-                , T.getActionButton "cog" "Konfigurieren" [] (TO.ToggleConfigApiForm)
+                , T.getActionButton Nothing "cog" "Konfigurieren" [] (TO.ToggleConfigApiForm)
                 , Html.span [ Attr.style "padding-right" "10px" ][ Html.text "" ]
-                , T.getActionButton "plus_rect" "neuer Task" [] (TO.ToggleTasknameForm)
+                , T.getActionButton Nothing "plus_rect" "neuer Task" [] (TO.ToggleTasknameForm)
               ]
               , calcForm ]
               (List.map (T.getTask model) (List.sortBy .taskName model.taskList))
@@ -90,7 +90,7 @@ view model =
           let
             bList = List.filter (\b -> b.uuid == bUuid) (DU.getTaskForEdit model tUuid).timeList
             booking = Maybe.withDefault O.getEmptyBooking (List.head bList)
-            delCommentBtn = T.getActionButton "delete" "Kommentar löschen" [Attr.style "width" "20px", Attr.style "margin-left" "5px"] (TO.SetBookingComment tUuid bUuid "")
+            delCommentBtn = T.getActionButton Nothing "delete" "Kommentar löschen" [Attr.style "width" "20px", Attr.style "margin-left" "5px"] (TO.SetBookingComment tUuid bUuid "")
             --commentForm = Html.textarea [ Attr.style "width" "480px", Attr.style "height" "80px", Ev.onInput (TO.SetBookingComment tUuid bUuid) ][ Html.text (Maybe.withDefault "" booking.comment) ]
             commentForm = Html.textarea [ Attr.value (Maybe.withDefault "" booking.comment), Attr.style "width" "480px", Attr.style "height" "80px", Ev.onInput (TO.SetBookingComment tUuid bUuid) ][]
           in
@@ -98,7 +98,7 @@ view model =
   in
     Html.div [
       Attr.style "margin-bottom" "10px"
-      , Attr.style "width" "225pt"
+      , Attr.style "width" "240pt"
     ][comment, taskDiv]
 
 main : Program () Model Msg
